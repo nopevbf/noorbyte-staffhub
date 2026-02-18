@@ -1,15 +1,10 @@
 import PageShell from '../../components/common/PageShell';
 import FeatureCard from '../../components/common/FeatureCard';
-import { UserPlus, Filter, Download, SortAsc, Users, Search } from 'lucide-react';
+import { UserPlus, Filter, Download, SortAsc, Users, Search, Loader2 } from 'lucide-react';
+import { useEmployees } from '@/hooks/useEmployees';
 
 export default function EmployeeList() {
-  const employees = [
-    { id: 'E001', name: 'Ahmad Fauzi', department: 'Engineering', position: 'Sr. Developer', status: 'Active' },
-    { id: 'E002', name: 'Siti Nurbaya', department: 'HR', position: 'HR Manager', status: 'Active' },
-    { id: 'E003', name: 'Budi Santoso', department: 'Finance', position: 'Accountant', status: 'Active' },
-    { id: 'E004', name: 'Dewi Lestari', department: 'Marketing', position: 'Content Lead', status: 'On Leave' },
-    { id: 'E005', name: 'Rizki Pratama', department: 'Engineering', position: 'Jr. Developer', status: 'Active' },
-  ];
+  const { data: employees, isLoading, error } = useEmployees();
 
   return (
     <PageShell
@@ -31,28 +26,43 @@ export default function EmployeeList() {
             <Search size={14} style={{ color: 'var(--surface-500)' }} />
             <input placeholder="Search employees..." style={{ background: 'transparent', border: 'none', color: 'var(--surface-200)', outline: 'none', fontSize: '0.85rem', fontFamily: 'var(--font-sans)' }} />
           </div>
-          <span style={{ fontSize: '0.85rem', color: 'var(--surface-400)' }}>{employees.length} employees</span>
+          <span style={{ fontSize: '0.85rem', color: 'var(--surface-400)' }}>{employees?.length || 0} employees</span>
         </div>
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>Name</th><th>Department</th><th>Position</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.map((e) => (
-                <tr key={e.id}>
-                  <td style={{ color: 'var(--surface-500)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{e.id}</td>
-                  <td style={{ fontWeight: 500, color: 'var(--surface-200)' }}>{e.name}</td>
-                  <td>{e.department}</td>
-                  <td>{e.position}</td>
-                  <td><span className={`badge ${e.status === 'Active' ? 'badge-success' : 'badge-warning'}`}>{e.status}</span></td>
+        
+        {isLoading ? (
+          <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', color: 'var(--surface-500)' }}>
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : error ? (
+           <div style={{ padding: '24px', color: 'var(--danger-500)', textAlign: 'center' }}>
+            Failed to load employees
+          </div>
+        ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Department</th><th>Position</th><th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {employees?.map((e: any) => (
+                  <tr key={e.id}>
+                    <td style={{ color: 'var(--surface-500)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{e.employeeCode}</td>
+                    <td style={{ fontWeight: 500, color: 'var(--surface-200)' }}>{e.firstName} {e.lastName}</td>
+                    <td>{e.department}</td>
+                    <td>{e.position}</td>
+                    <td>
+                      <span className={`badge ${e.status === 'active' ? 'badge-success' : e.status === 'on_leave' ? 'badge-warning' : 'badge-danger'}`}>
+                        {e.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </PageShell>
   );

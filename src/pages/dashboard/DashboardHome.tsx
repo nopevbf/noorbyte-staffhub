@@ -5,7 +5,22 @@ import {
   UserPlus, ClipboardList, DollarSign, AlertCircle
 } from 'lucide-react';
 
+import { useDashboardStats } from '@/hooks/useDashboard';
+import { useFinanceStats } from '@/hooks/useFinance';
+
 export default function DashboardHome() {
+  const { data: dashboardStats, isLoading: loadingDash } = useDashboardStats();
+  const { data: financeStats, isLoading: loadingFin } = useFinanceStats();
+
+  const isLoading = loadingDash || loadingFin;
+
+  // Derived values
+  const presentCount = dashboardStats ? Math.round(dashboardStats.totalEmployees * (dashboardStats.attendanceRate / 100)) : 0;
+  const attendanceRate = dashboardStats?.attendanceRate || 0;
+  const totalEmployees = dashboardStats?.totalEmployees || 0;
+  const payrollStatus = dashboardStats?.lastPayrollStatus || 'On Track';
+  const revenue = financeStats?.totalIncome || 0;
+
   return (
     <PageShell title="Dashboard" subtitle="Welcome back! Here's your business overview.">
       {/* Stat Cards */}
@@ -14,7 +29,7 @@ export default function DashboardHome() {
           <div className="stat-icon primary"><Users size={22} /></div>
           <div className="stat-content">
             <h3>Total Employees</h3>
-            <div className="stat-value">248</div>
+            <div className="stat-value">{isLoading ? '...' : totalEmployees}</div>
             <div className="stat-change up"><ArrowUpRight size={14} /> +12 this month</div>
           </div>
         </div>
@@ -22,23 +37,23 @@ export default function DashboardHome() {
           <div className="stat-icon success"><Clock size={22} /></div>
           <div className="stat-content">
             <h3>Present Today</h3>
-            <div className="stat-value">231</div>
-            <div className="stat-change up"><ArrowUpRight size={14} /> 93.1% rate</div>
+            <div className="stat-value">{isLoading ? '...' : presentCount}</div>
+            <div className="stat-change up"><ArrowUpRight size={14} /> {attendanceRate}% rate</div>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon warning"><Wallet size={22} /></div>
           <div className="stat-content">
-            <h3>Pending Payroll</h3>
-            <div className="stat-value">Rp 847M</div>
-            <div className="stat-change down"><ArrowDownRight size={14} /> Feb 2026</div>
+            <h3>Payroll Status</h3>
+            <div className="stat-value" style={{ fontSize: '1.2rem' }}>{isLoading ? '...' : payrollStatus}</div>
+            <div className="stat-change down"><ArrowDownRight size={14} /> {dashboardStats?.pendingLeaves || 0} Leaves Pending</div>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon info"><TrendingUp size={22} /></div>
           <div className="stat-content">
-            <h3>Monthly Revenue</h3>
-            <div className="stat-value">Rp 1.2B</div>
+            <h3>Total Revenue</h3>
+            <div className="stat-value" style={{ fontSize: '1.2rem' }}>{isLoading ? '...' : `Rp ${revenue.toLocaleString()}`}</div>
             <div className="stat-change up"><ArrowUpRight size={14} /> +8.3%</div>
           </div>
         </div>

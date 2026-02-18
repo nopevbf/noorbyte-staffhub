@@ -1,9 +1,37 @@
-import { Link } from 'react-router-dom';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogIn, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await signIn(email, password);
+      
+      if (error) {
+        setError(error.message || 'Failed to sign in');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-layout">
@@ -14,10 +42,32 @@ export default function Login() {
         </div>
         <h2>Welcome Back</h2>
         <p className="subtitle">Sign in to your StaffHub account</p>
-        <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+        
+        {error && (
+          <div style={{ 
+            background: 'rgba(239, 68, 68, 0.1)', 
+            border: '1px solid var(--danger-500)', 
+            color: 'var(--danger-500)', 
+            padding: '12px', 
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '16px',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Email Address</label>
-            <input className="input" type="email" placeholder="admin@noorbyte.com" />
+            <input 
+              className="input" 
+              type="email" 
+              placeholder="admin@noorbyte.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div className="input-group">
             <label>Password</label>
@@ -27,6 +77,9 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 style={{ width: '100%', paddingRight: '44px' }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
@@ -40,9 +93,9 @@ export default function Login() {
               </button>
             </div>
           </div>
-          <button className="btn btn-primary btn-lg" type="submit">
-            <LogIn size={18} />
-            Sign In
+          <button className="btn btn-primary btn-lg" type="submit" disabled={loading}>
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         <div className="auth-links">
