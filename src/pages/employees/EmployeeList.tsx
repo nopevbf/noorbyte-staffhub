@@ -2,12 +2,8 @@ import { useEffect, useState } from "react";
 import PageShell from "../../components/common/PageShell";
 import FeatureCard from "../../components/common/FeatureCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  defaultEmployees,
-  Employee,
-  getStoredEmployees,
-  saveStoredEmployees,
-} from "./employeeStorage";
+import { defaultEmployees, getStoredEmployees } from "./employeeStorage";
+import type { Employee } from "./employeeStorage";
 import {
   UserPlus,
   Filter,
@@ -20,7 +16,7 @@ import {
 export default function EmployeeList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [employees, setEmployees] = useState<Employee[]>(() =>
+  const [employees] = useState<Employee[]>(() =>
     getStoredEmployees(defaultEmployees),
   );
   const [showCreatedNotice, setShowCreatedNotice] = useState(false);
@@ -33,10 +29,6 @@ export default function EmployeeList() {
     setShowCreatedNotice(true);
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams]);
-
-  useEffect(() => {
-    saveStoredEmployees(employees);
-  }, [employees]);
 
   return (
     <PageShell

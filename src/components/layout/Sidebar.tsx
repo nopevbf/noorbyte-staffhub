@@ -142,7 +142,7 @@ interface SidebarProps {
 export default function Sidebar({ collapsed }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     navGroups.forEach((g) => {
@@ -168,11 +168,20 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     );
   };
 
-  const handleLogout = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLogout = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    logout();
+    await logout();
     navigate("/login", { replace: true });
   };
+
+  const displayName = user?.name ?? "User";
+  const displayRole = user?.role?.name ?? "No Role";
+  const avatarInitials = displayName
+    .split(" ")
+    .filter((word) => word.length > 0)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("");
 
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -230,11 +239,11 @@ export default function Sidebar({ collapsed }: SidebarProps) {
 
       <div className="sidebar-footer">
         <div className="user-info">
-          <div className="user-avatar">AD</div>
+          <div className="user-avatar">{avatarInitials || "U"}</div>
           {!collapsed && (
             <div className="user-details">
-              <div className="user-name">Admin User</div>
-              <div className="user-role">Super Admin</div>
+              <div className="user-name">{displayName}</div>
+              <div className="user-role">{displayRole}</div>
             </div>
           )}
           {!collapsed && (
