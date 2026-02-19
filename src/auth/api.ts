@@ -36,6 +36,35 @@ type ActionResult = {
   message?: string;
 };
 
+type BetterAuthLikeResponse = {
+  success?: boolean;
+  status?: boolean;
+  error?: {
+    code?: string;
+    message?: string;
+  };
+  message?: string;
+};
+
+function getAuthErrorMessage(
+  payload: BetterAuthLikeResponse | null,
+  fallback: string,
+) {
+  if (!payload) {
+    return fallback;
+  }
+
+  if (payload.error?.message) {
+    return payload.error.message;
+  }
+
+  if (payload.message) {
+    return payload.message;
+  }
+
+  return fallback;
+}
+
 async function parseJsonSafe<T>(response: Response): Promise<T | null> {
   try {
     return (await response.json()) as T;
@@ -76,15 +105,19 @@ export async function loginWithEmail(email: string, password: string) {
     }),
   });
 
-  const payload = await parseJsonSafe<ApiResponse<unknown>>(response);
+  const payload = await parseJsonSafe<BetterAuthLikeResponse>(response);
 
-  if (!response.ok || !payload || !payload.success) {
+  if (!response.ok) {
     return {
       ok: false,
-      message:
-        payload && !payload.success
-          ? (payload.error?.message ?? "Invalid credentials")
-          : "Invalid credentials",
+      message: getAuthErrorMessage(payload, "Invalid credentials"),
+    };
+  }
+
+  if (payload?.success === false || payload?.status === false) {
+    return {
+      ok: false,
+      message: getAuthErrorMessage(payload, "Invalid credentials"),
     };
   }
 
@@ -106,15 +139,19 @@ export async function requestPasswordReset(
     }),
   });
 
-  const payload = await parseJsonSafe<ApiResponse<unknown>>(response);
+  const payload = await parseJsonSafe<BetterAuthLikeResponse>(response);
 
-  if (!response.ok || !payload || !payload.success) {
+  if (!response.ok) {
     return {
       ok: false,
-      message:
-        payload && !payload.success
-          ? (payload.error?.message ?? "Failed to send reset link")
-          : "Failed to send reset link",
+      message: getAuthErrorMessage(payload, "Failed to send reset link"),
+    };
+  }
+
+  if (payload?.success === false || payload?.status === false) {
+    return {
+      ok: false,
+      message: getAuthErrorMessage(payload, "Failed to send reset link"),
     };
   }
 
@@ -137,15 +174,19 @@ export async function resetPassword(
     }),
   });
 
-  const payload = await parseJsonSafe<ApiResponse<unknown>>(response);
+  const payload = await parseJsonSafe<BetterAuthLikeResponse>(response);
 
-  if (!response.ok || !payload || !payload.success) {
+  if (!response.ok) {
     return {
       ok: false,
-      message:
-        payload && !payload.success
-          ? (payload.error?.message ?? "Failed to reset password")
-          : "Failed to reset password",
+      message: getAuthErrorMessage(payload, "Failed to reset password"),
+    };
+  }
+
+  if (payload?.success === false || payload?.status === false) {
+    return {
+      ok: false,
+      message: getAuthErrorMessage(payload, "Failed to reset password"),
     };
   }
 
