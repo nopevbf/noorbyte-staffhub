@@ -112,7 +112,7 @@ export const leaves = pgTable('leaves', {
   endDate: date('end_date').notNull(),
   reason: text('reason'),
   status: leaveStatusEnum('status').default('pending'),
-  approvedBy: uuid('approved_by').references(() => users.id),
+  approvedBy: text('approved_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

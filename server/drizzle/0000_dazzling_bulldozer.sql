@@ -94,7 +94,7 @@ CREATE TABLE "leaves" (
 	"end_date" date NOT NULL,
 	"reason" text,
 	"status" "leave_status" DEFAULT 'pending',
-	"approved_by" uuid,
+	"approved_by" text,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
