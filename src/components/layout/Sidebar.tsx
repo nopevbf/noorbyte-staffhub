@@ -1,9 +1,18 @@
-import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Clock, Wallet, TrendingUp, MessageSquare,
-  BarChart3, Settings, ChevronRight, LogOut
-} from 'lucide-react';
+  LayoutDashboard,
+  Users,
+  Clock,
+  Wallet,
+  TrendingUp,
+  MessageSquare,
+  BarChart3,
+  Settings,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 interface NavChild {
   label: string;
@@ -20,107 +29,107 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     icon: <LayoutDashboard size={20} />,
-    label: 'Dashboard',
-    basePath: '/dashboard',
+    label: "Dashboard",
+    basePath: "/dashboard",
     children: [
-      { label: 'Overview', to: '/dashboard' },
-      { label: 'Notifications', to: '/notifications' },
+      { label: "Overview", to: "/dashboard" },
+      { label: "Notifications", to: "/notifications" },
     ],
   },
   {
     icon: <Users size={20} />,
-    label: 'Employees',
-    basePath: '/employees',
+    label: "Employees",
+    basePath: "/employees",
     children: [
-      { label: 'All Employees', to: '/employees' },
-      { label: 'Add Employee', to: '/employees/new' },
-      { label: 'Org Structure', to: '/employees/structure' },
-      { label: 'Contracts', to: '/employees/contracts' },
-      { label: 'Bulk Import', to: '/employees/import' },
+      { label: "All Employees", to: "/employees" },
+      { label: "Add Employee", to: "/employees/new" },
+      { label: "Org Structure", to: "/employees/structure" },
+      { label: "Contracts", to: "/employees/contracts" },
+      { label: "Bulk Import", to: "/employees/bulk-import" },
     ],
   },
   {
     icon: <Clock size={20} />,
-    label: 'Attendance',
-    basePath: '/attendance',
+    label: "Attendance",
+    basePath: "/attendance",
     children: [
-      { label: 'Live Monitor', to: '/attendance/monitor' },
-      { label: 'Summary', to: '/attendance/summary' },
-      { label: 'Manual Entry', to: '/attendance/manual' },
-      { label: 'Overtime', to: '/attendance/overtime' },
-      { label: 'Leave', to: '/attendance/leave' },
-      { label: 'Work Calendar', to: '/attendance/calendar' },
-      { label: 'Shifts', to: '/attendance/shifts' },
+      { label: "Live Monitor", to: "/attendance/live" },
+      { label: "Summary", to: "/attendance/summary" },
+      { label: "Manual Entry", to: "/attendance/manual" },
+      { label: "Overtime", to: "/attendance/overtime" },
+      { label: "Leave", to: "/attendance/leave" },
+      { label: "Work Calendar", to: "/attendance/calendar" },
+      { label: "Shifts", to: "/attendance/shifts" },
     ],
   },
   {
     icon: <Wallet size={20} />,
-    label: 'Payroll',
-    basePath: '/payroll',
+    label: "Payroll",
+    basePath: "/payroll",
     children: [
-      { label: 'Process Payroll', to: '/payroll/process' },
-      { label: 'History', to: '/payroll/history' },
-      { label: 'Master Salary', to: '/payroll/master-salary' },
-      { label: 'Master Overtime', to: '/payroll/master-overtime' },
-      { label: 'Master Deduction', to: '/payroll/master-deduction' },
-      { label: 'Payslips', to: '/payroll/payslips' },
-      { label: 'Tax Report', to: '/payroll/tax' },
+      { label: "Process Payroll", to: "/payroll/process" },
+      { label: "History", to: "/payroll/history" },
+      { label: "Master Salary", to: "/payroll/master-salary" },
+      { label: "Master Overtime", to: "/payroll/master-overtime" },
+      { label: "Master Deduction", to: "/payroll/master-deduction" },
+      { label: "Payslips", to: "/payroll/payslips" },
+      { label: "Tax Report", to: "/payroll/tax" },
     ],
   },
   {
     icon: <TrendingUp size={20} />,
-    label: 'Finance',
-    basePath: '/finance',
+    label: "Finance",
+    basePath: "/finance",
     children: [
-      { label: 'Dashboard', to: '/finance/dashboard' },
-      { label: 'Income', to: '/finance/income' },
-      { label: 'Expenses', to: '/finance/expense' },
-      { label: 'Categories', to: '/finance/categories' },
-      { label: 'Budgeting', to: '/finance/budget' },
-      { label: 'Reports', to: '/finance/reports' },
+      { label: "Dashboard", to: "/finance" },
+      { label: "Income", to: "/finance/income" },
+      { label: "Expenses", to: "/finance/expense" },
+      { label: "Categories", to: "/finance/categories" },
+      { label: "Budgeting", to: "/finance/budget" },
+      { label: "Reports", to: "/finance/reports" },
     ],
   },
   {
     icon: <MessageSquare size={20} />,
-    label: 'WhatsApp Bot',
-    basePath: '/bot',
+    label: "WhatsApp Bot",
+    basePath: "/bot",
     children: [
-      { label: 'Status', to: '/bot/status' },
-      { label: 'Message Logs', to: '/bot/logs' },
-      { label: 'Broadcast', to: '/bot/broadcast' },
-      { label: 'Auto-Reply', to: '/bot/auto-reply' },
-      { label: 'Templates', to: '/bot/templates' },
-      { label: 'Contact Sync', to: '/bot/contacts' },
+      { label: "Status", to: "/bot/status" },
+      { label: "Message Logs", to: "/bot/logs" },
+      { label: "Broadcast", to: "/bot/broadcast" },
+      { label: "Auto-Reply", to: "/bot/auto-reply" },
+      { label: "Templates", to: "/bot/templates" },
+      { label: "Contact Sync", to: "/bot/contacts" },
     ],
   },
   {
     icon: <BarChart3 size={20} />,
-    label: 'Reports',
-    basePath: '/reports',
+    label: "Reports",
+    basePath: "/reports",
     children: [
-      { label: 'Report Center', to: '/reports' },
-      { label: 'Attendance', to: '/reports/attendance' },
-      { label: 'Payroll', to: '/reports/payroll' },
-      { label: 'Finance', to: '/reports/finance' },
-      { label: 'Employees', to: '/reports/employees' },
-      { label: 'Builder', to: '/reports/builder' },
-      { label: 'Scheduled', to: '/reports/scheduled' },
+      { label: "Report Center", to: "/reports" },
+      { label: "Attendance", to: "/reports/attendance" },
+      { label: "Payroll", to: "/reports/payroll" },
+      { label: "Finance", to: "/reports/finance" },
+      { label: "Employees", to: "/reports/employees" },
+      { label: "Builder", to: "/reports/builder" },
+      { label: "Scheduled", to: "/reports/scheduled" },
     ],
   },
   {
     icon: <Settings size={20} />,
-    label: 'Settings',
-    basePath: '/settings',
+    label: "Settings",
+    basePath: "/settings",
     children: [
-      { label: 'Company Profile', to: '/settings/company' },
-      { label: 'Work Hours', to: '/settings/work-hours' },
-      { label: 'Locations', to: '/settings/locations' },
-      { label: 'Users & Roles', to: '/settings/users' },
-      { label: 'Permissions', to: '/settings/roles' },
-      { label: 'Notifications', to: '/settings/notifications' },
-      { label: 'Integrations', to: '/settings/integrations' },
-      { label: 'Backup', to: '/settings/backup' },
-      { label: 'Audit Log', to: '/settings/audit' },
+      { label: "Company Profile", to: "/settings/company" },
+      { label: "Work Hours", to: "/settings/work-hours" },
+      { label: "Locations", to: "/settings/locations" },
+      { label: "Users & Roles", to: "/settings/users" },
+      { label: "Permissions", to: "/settings/roles" },
+      { label: "Notifications", to: "/settings/notifications" },
+      { label: "Integrations", to: "/settings/integrations" },
+      { label: "Backup", to: "/settings/backup" },
+      { label: "Audit Log", to: "/settings/audit-log" },
     ],
   },
 ];
@@ -132,10 +141,15 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     navGroups.forEach((g) => {
-      if (location.pathname.startsWith(g.basePath) || (g.basePath === '/dashboard' && location.pathname === '/')) {
+      if (
+        location.pathname.startsWith(g.basePath) ||
+        (g.basePath === "/dashboard" && location.pathname === "/")
+      ) {
         initial[g.label] = true;
       }
     });
@@ -147,12 +161,21 @@ export default function Sidebar({ collapsed }: SidebarProps) {
   };
 
   const isGroupActive = (group: NavGroup) => {
-    return location.pathname.startsWith(group.basePath) || 
-           (group.basePath === '/dashboard' && (location.pathname === '/' || location.pathname === '/dashboard'));
+    return (
+      location.pathname.startsWith(group.basePath) ||
+      (group.basePath === "/dashboard" &&
+        (location.pathname === "/" || location.pathname === "/dashboard"))
+    );
+  };
+
+  const handleLogout = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    logout();
+    navigate("/login", { replace: true });
   };
 
   return (
-    <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <div className="sidebar-header">
         <div className="logo-icon">N</div>
         {!collapsed && (
@@ -166,7 +189,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
         {navGroups.map((group) => (
           <div className="nav-section" key={group.label}>
             <div
-              className={`nav-group-header ${isGroupActive(group) ? 'active' : ''}`}
+              className={`nav-group-header ${isGroupActive(group) ? "active" : ""}`}
               onClick={() => toggleGroup(group.label)}
             >
               <span className="nav-icon">{group.icon}</span>
@@ -175,7 +198,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
                   {group.label}
                   <ChevronRight
                     size={14}
-                    className={`chevron ${openGroups[group.label] ? 'open' : ''}`}
+                    className={`chevron ${openGroups[group.label] ? "open" : ""}`}
                   />
                 </>
               )}
@@ -187,8 +210,14 @@ export default function Sidebar({ collapsed }: SidebarProps) {
                   <NavLink
                     key={child.to}
                     to={child.to}
-                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                    end={child.to === '/dashboard' || child.to === '/employees' || child.to === '/reports'}
+                    className={({ isActive }) =>
+                      `nav-item ${isActive ? "active" : ""}`
+                    }
+                    end={
+                      child.to === "/dashboard" ||
+                      child.to === "/employees" ||
+                      child.to === "/reports"
+                    }
                   >
                     {child.label}
                   </NavLink>
@@ -209,7 +238,11 @@ export default function Sidebar({ collapsed }: SidebarProps) {
             </div>
           )}
           {!collapsed && (
-            <NavLink to="/login" style={{ marginLeft: 'auto', color: 'var(--surface-500)' }}>
+            <NavLink
+              to="/login"
+              onClick={handleLogout}
+              style={{ marginLeft: "auto", color: "var(--surface-500)" }}
+            >
               <LogOut size={18} />
             </NavLink>
           )}
