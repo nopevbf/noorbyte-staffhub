@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   name varchar(255) NOT NULL,
   email varchar(255) NOT NULL UNIQUE,
   email_verified boolean NOT NULL DEFAULT false,
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   token varchar(512) NOT NULL UNIQUE,
   expires_at timestamptz NOT NULL,
   ip_address varchar(64),
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 CREATE TABLE IF NOT EXISTS accounts (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   account_id varchar(255) NOT NULL,
   provider_id varchar(255) NOT NULL,
   access_token varchar(1024),
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE TABLE IF NOT EXISTS verifications (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   identifier varchar(255) NOT NULL,
   value varchar(512) NOT NULL,
   expires_at timestamptz NOT NULL,
