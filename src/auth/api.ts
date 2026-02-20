@@ -65,6 +65,22 @@ function getAuthErrorMessage(
   return fallback;
 }
 
+function getLoginFallbackMessage(response: Response) {
+  if (response.status === 401 || response.status === 403) {
+    return "Invalid email or password";
+  }
+
+  if (response.status === 429) {
+    return "Too many login attempts. Please wait a moment and try again.";
+  }
+
+  if (response.status >= 500) {
+    return "Authentication service is unavailable. Please try again.";
+  }
+
+  return "Failed to sign in. Please try again.";
+}
+
 async function parseJsonSafe<T>(response: Response): Promise<T | null> {
   try {
     return (await response.json()) as T;
@@ -115,7 +131,10 @@ export async function loginWithEmail(email: string, password: string) {
     if (!response.ok) {
       return {
         ok: false,
-        message: getAuthErrorMessage(payload, "Invalid credentials"),
+        message: getAuthErrorMessage(
+          payload,
+          getLoginFallbackMessage(response),
+        ),
       };
     }
 
@@ -128,7 +147,11 @@ export async function loginWithEmail(email: string, password: string) {
 
     return { ok: true as const };
   } catch {
-    return { ok: false, message: "Unable to connect. Please check your internet connection and try again." };
+    return {
+      ok: false,
+      message:
+        "Unable to connect. Please check your internet connection and try again.",
+    };
   }
 }
 
@@ -166,7 +189,11 @@ export async function requestPasswordReset(
 
     return { ok: true };
   } catch {
-    return { ok: false, message: "Unable to connect. Please check your internet connection and try again." };
+    return {
+      ok: false,
+      message:
+        "Unable to connect. Please check your internet connection and try again.",
+    };
   }
 }
 
@@ -205,7 +232,11 @@ export async function resetPassword(
 
     return { ok: true };
   } catch {
-    return { ok: false, message: "Unable to connect. Please check your internet connection and try again." };
+    return {
+      ok: false,
+      message:
+        "Unable to connect. Please check your internet connection and try again.",
+    };
   }
 }
 
