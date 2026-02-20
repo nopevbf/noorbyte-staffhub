@@ -1,5 +1,5 @@
 import { and, count, desc, eq, ilike, or } from "drizzle-orm";
-import { createHash } from "node:crypto";
+import { hashPassword } from "better-auth/crypto";
 import { db } from "../../lib/db.js";
 import { redis, redisEnabled } from "../../lib/redis.js";
 import { accounts } from "../../db/schema/accounts.js";
@@ -185,9 +185,7 @@ export const usersService = {
       })
       .returning();
 
-    const hashedPassword = createHash("sha256")
-      .update(input.password)
-      .digest("hex");
+    const hashedPassword = await hashPassword(input.password);
 
     await db.insert(accounts).values({
       userId: created.id,
