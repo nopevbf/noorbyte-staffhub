@@ -16,7 +16,7 @@ import {
 export default function EmployeeList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [employees] = useState<Employee[]>(() =>
+  const [employees, setEmployees] = useState<Employee[]>(() =>
     getStoredEmployees(defaultEmployees),
   );
   const [showCreatedNotice, setShowCreatedNotice] = useState(false);
@@ -26,6 +26,7 @@ export default function EmployeeList() {
       return;
     }
 
+    setEmployees(getStoredEmployees(defaultEmployees));
     setShowCreatedNotice(true);
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams]);
