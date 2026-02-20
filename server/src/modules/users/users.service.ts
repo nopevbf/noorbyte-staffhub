@@ -170,8 +170,8 @@ export const usersService = {
       throw new ApiError(400, "ROLE_NOT_FOUND", "Role does not exist");
     }
 
-    if (existingRole.isSystem === false && existingRole.name.trim() === "") {
-      throw new ApiError(400, "ROLE_INVALID", "Role is invalid");
+    if (existingRole.name.trim() === "") {
+      throw new ApiError(400, "ROLE_INVALID", "Role name cannot be empty");
     }
 
     const [created] = await db
