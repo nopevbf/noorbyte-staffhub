@@ -18,6 +18,11 @@ interface NavItem {
   to: string;
 }
 
+interface SubNavItem {
+  label: string;
+  to: string;
+}
+
 const mainNavItems: NavItem[] = [
   {
     icon: <LayoutDashboard size={20} />,
@@ -62,6 +67,16 @@ const systemNavItem: NavItem = {
   to: "/settings/company",
 };
 
+const attendanceSubItems: SubNavItem[] = [
+  { label: "Rekap", to: "/attendance/summary" },
+  { label: "Live Monitor", to: "/attendance/live" },
+  { label: "Manual Entry", to: "/attendance/manual" },
+  { label: "Lembur", to: "/attendance/overtime" },
+  { label: "Izin & Cuti", to: "/attendance/leave" },
+  { label: "Kalender", to: "/attendance/calendar" },
+  { label: "Shift", to: "/attendance/shifts" },
+];
+
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
@@ -82,6 +97,10 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       (basePath === "/dashboard" &&
         (location.pathname === "/" || location.pathname === "/dashboard"))
     );
+  };
+
+  const isSubItemActive = (subItem: SubNavItem) => {
+    return location.pathname === subItem.to;
   };
 
   const handleLogout = async (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -112,16 +131,38 @@ export default function Sidebar({ collapsed }: SidebarProps) {
 
       <nav className="sidebar-nav">
         <div className="nav-main">
-          {mainNavItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={`nav-item ${isItemActive(item) ? "active" : ""}`}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </NavLink>
-          ))}
+          {mainNavItems.map((item) => {
+            const attendanceActive =
+              item.label === "Attendance" && isItemActive(item);
+
+            return (
+              <div key={item.label} className="nav-item-group">
+                <NavLink
+                  to={item.to}
+                  className={`nav-item ${isItemActive(item) ? "active" : ""}`}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  {!collapsed && <span>{item.label}</span>}
+                </NavLink>
+
+                {!collapsed && item.label === "Attendance" && (
+                  <div
+                    className={`nav-submenu ${attendanceActive ? "expanded" : ""}`}
+                  >
+                    {attendanceSubItems.map((subItem) => (
+                      <NavLink
+                        key={subItem.to}
+                        to={subItem.to}
+                        className={`nav-subitem ${isSubItemActive(subItem) ? "active" : ""}`}
+                      >
+                        {subItem.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="nav-system">
