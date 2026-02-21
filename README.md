@@ -73,6 +73,12 @@ npm run preview
 - `src/router.tsx`: definisi rute + lazy loading
 - `src/main.tsx`: entry point aplikasi
 
+## Dokumentasi
+
+- `docs/folder-structure-guide.md`: panduan fungsi tiap folder utama frontend, backend, dan folder pendukung.
+- `docs/backend-plan-users-roles.md`: rencana desain modul user dan role pada backend.
+- `docs/postgresql-setup.md`: panduan setup PostgreSQL untuk environment lokal/development.
+
 ## Alur Pengembangan Harian
 
 1. Jalankan `npm run dev`
