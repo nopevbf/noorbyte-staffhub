@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import PageShell from "../../components/common/PageShell";
-import FeatureCard from "../../components/common/FeatureCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { defaultEmployees, getStoredEmployees } from "./employeeStorage";
 import type { Employee } from "./employeeStorage";
 import {
   UserPlus,
-  Filter,
   Download,
-  SortAsc,
-  Users,
   Search,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  MessageCircle,
+  Pencil,
 } from "lucide-react";
 
 export default function EmployeeList() {
@@ -20,6 +21,9 @@ export default function EmployeeList() {
     getStoredEmployees(defaultEmployees),
   );
   const [showCreatedNotice, setShowCreatedNotice] = useState(false);
+  const [query, setQuery] = useState("");
+  const [department, setDepartment] = useState("all");
+  const [status, setStatus] = useState("all");
 
   useEffect(() => {
     if (searchParams.get("created") !== "1") {
@@ -31,34 +35,73 @@ export default function EmployeeList() {
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  const departments = Array.from(
+    new Set(employees.map((item) => item.department)),
+  );
+
+  const filteredEmployees = employees.filter((employee) => {
+    const normalizedQuery = query.toLowerCase().trim();
+    const matchesQuery =
+      normalizedQuery.length === 0 ||
+      employee.name.toLowerCase().includes(normalizedQuery) ||
+      employee.id.toLowerCase().includes(normalizedQuery);
+    const matchesDepartment =
+      department === "all" || employee.department === department;
+    const matchesStatus = status === "all" || employee.status === status;
+
+    return matchesQuery && matchesDepartment && matchesStatus;
+  });
+
+  const getBadgeClassName = (employeeStatus: Employee["status"]) => {
+    if (employeeStatus === "Active") {
+      return "active";
+    }
+
+    if (employeeStatus === "Probation") {
+      return "probation";
+    }
+
+    return "leave";
+  };
+
+  const getJoinDate = (id: string) => {
+    const serial = Number(id.replace("E", ""));
+    const safeSerial = Number.isNaN(serial) ? 1 : serial;
+    const day = ((safeSerial * 7) % 28) + 1;
+    const month = ((safeSerial * 3) % 12) + 1;
+    const year = 2020 + (safeSerial % 5);
+    return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+  };
+
+  const getEmail = (name: string) =>
+    `${name.toLowerCase().replace(/\s+/g, ".")}@company.com`;
+
+  const renderAvatar = (name: string) => {
+    const initials = name
+      .split(" ")
+      .slice(0, 2)
+      .map((word) => word.charAt(0).toUpperCase())
+      .join("");
+
+    return <span className="avatar-fallback">{initials}</span>;
+  };
+
   return (
     <PageShell
-      title="Employees"
-      subtitle="Manage all employee records"
+      title="Daftar Karyawan"
+      subtitle="Manage your employee data and access."
       breadcrumbs={[{ label: "Employees" }]}
       actions={
         <button
           className="btn btn-primary"
           onClick={() => navigate("/employees/new")}
         >
-          <UserPlus size={16} /> Add Employee
+          <UserPlus size={16} /> Tambah Karyawan
         </button>
       }
     >
       {showCreatedNotice && (
-        <div
-          className="card card-sm"
-          style={{
-            marginBottom: "16px",
-            borderColor: "rgba(16, 185, 129, 0.35)",
-            background: "rgba(16, 185, 129, 0.08)",
-            color: "var(--success)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
+        <div className="employee-created-notice">
           <span>Employee berhasil ditambahkan.</span>
           <button
             className="btn btn-ghost btn-sm"
@@ -69,108 +112,151 @@ export default function EmployeeList() {
         </div>
       )}
 
-      <div className="feature-list" style={{ marginBottom: "24px" }}>
-        <FeatureCard
-          icon={Filter}
-          title="Smart Filters"
-          description="Filter by department, status, position"
-        />
-        <FeatureCard
-          icon={SortAsc}
-          title="Sort & Group"
-          description="Sort by name, date, department"
-        />
-        <FeatureCard
-          icon={Download}
-          title="Export"
-          description="Export to Excel, CSV, PDF"
-        />
-        <FeatureCard
-          icon={Users}
-          title="Bulk Actions"
-          description="Bulk update, archive, delete"
-        />
-      </div>
+      <section className="employee-v2 card">
+        <div className="employee-toolbar">
+          <div className="filters-wrap">
+            <label className="search-input" htmlFor="employee-search">
+              <Search size={16} />
+              <input
+                id="employee-search"
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search name or ID..."
+              />
+            </label>
 
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div
-          style={{
-            padding: "16px 20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderBottom: "1px solid var(--glass-border)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "var(--surface-800)",
-              padding: "8px 14px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--surface-700)",
-            }}
-          >
-            <Search size={14} style={{ color: "var(--surface-500)" }} />
-            <input
-              placeholder="Search employees..."
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "var(--surface-200)",
-                outline: "none",
-                fontSize: "0.85rem",
-                fontFamily: "var(--font-sans)",
-              }}
-            />
+            <select
+              value={department}
+              onChange={(event) => setDepartment(event.target.value)}
+            >
+              <option value="all">All Departments</option>
+              {departments.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <option value="all">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Probation">Probation</option>
+              <option value="On Leave">On Leave</option>
+            </select>
           </div>
-          <span style={{ fontSize: "0.85rem", color: "var(--surface-400)" }}>
-            {employees.length} employees
-          </span>
+
+          <button
+            type="button"
+            className="btn btn-secondary employee-export-btn"
+          >
+            <Download size={16} /> Export
+          </button>
         </div>
-        <div className="table-wrapper">
-          <table>
+
+        <div className="employee-table-wrap">
+          <table className="employee-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Position</th>
-                <th>Status</th>
+                <th>Karyawan</th>
+                <th>ID Karyawan</th>
+                <th>Departemen</th>
+                <th>Posisi</th>
+                <th>Tgl Bergabung</th>
+                <th className="align-center">Status</th>
+                <th className="align-right">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {employees.map((e) => (
-                <tr key={e.id}>
-                  <td
-                    style={{
-                      color: "var(--surface-500)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {e.id}
-                  </td>
-                  <td style={{ fontWeight: 500, color: "var(--surface-200)" }}>
-                    {e.name}
-                  </td>
-                  <td>{e.department}</td>
-                  <td>{e.position}</td>
+              {filteredEmployees.map((employee) => (
+                <tr key={employee.id}>
                   <td>
+                    <div className="employee-cell">
+                      <div className="avatar">
+                        {renderAvatar(employee.name)}
+                      </div>
+                      <div>
+                        <p>{employee.name}</p>
+                        <small>{getEmail(employee.name)}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="mono">EMP-{employee.id.replace("E", "")}</td>
+                  <td>{employee.department}</td>
+                  <td>{employee.position}</td>
+                  <td>{getJoinDate(employee.id)}</td>
+                  <td className="align-center">
                     <span
-                      className={`badge ${e.status === "Active" ? "badge-success" : e.status === "Probation" ? "badge-info" : "badge-warning"}`}
+                      className={`status-badge ${getBadgeClassName(employee.status)}`}
                     >
-                      {e.status}
+                      {employee.status}
                     </span>
+                  </td>
+                  <td className="align-right">
+                    <div className="row-actions">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/employees/${employee.id}`)}
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/bot/broadcast")}
+                      >
+                        <MessageCircle size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate(`/employees/${employee.id}/edit`)
+                        }
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
+
+              {filteredEmployees.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="empty-row">
+                    Tidak ada data karyawan yang cocok dengan filter.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-      </div>
+
+        <div className="employee-pagination">
+          <p>
+            Showing{" "}
+            <strong>
+              {filteredEmployees.length === 0 ? 0 : 1}-
+              {filteredEmployees.length}
+            </strong>{" "}
+            of <strong>{employees.length}</strong> results
+          </p>
+          <div className="pager-btns">
+            <button type="button" aria-label="Previous page">
+              <ChevronLeft size={16} />
+            </button>
+            <button type="button" className="active">
+              1
+            </button>
+            <button type="button">2</button>
+            <button type="button">3</button>
+            <button type="button" aria-label="Next page">
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }

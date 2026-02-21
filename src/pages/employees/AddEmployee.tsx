@@ -10,6 +10,18 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  CalendarDays,
+  Mail,
+  Phone,
+  ImagePlus,
+  Info,
+  IdCard,
+  Upload,
+  FileCheck2,
+  ReceiptText,
+  Trash2,
+  AlertCircle,
+  Pencil,
 } from "lucide-react";
 import {
   addStoredEmployee,
@@ -20,10 +32,10 @@ import {
 import type { EmployeeStatus } from "./employeeStorage";
 
 const steps = [
-  { icon: User, label: "Personal" },
-  { icon: Briefcase, label: "Employment" },
-  { icon: Wallet, label: "Salary" },
-  { icon: FileText, label: "Documents" },
+  { icon: User, label: "Data Pribadi" },
+  { icon: Briefcase, label: "Kepegawaian" },
+  { icon: Wallet, label: "Konfigurasi Gaji" },
+  { icon: FileText, label: "Dokumen" },
 ];
 
 type AddEmployeeForm = {
@@ -32,6 +44,7 @@ type AddEmployeeForm = {
   phone: string;
   birthDate: string;
   gender: string;
+  maritalStatus: string;
   ktp: string;
   employeeId: string;
   department: string;
@@ -40,8 +53,18 @@ type AddEmployeeForm = {
   status: EmployeeStatus;
   joinDate: string;
   workLocation: string;
+  reportingManager: string;
   basicSalary: string;
+  salaryCurrency: string;
   paymentType: string;
+  transportAllowanceEnabled: boolean;
+  transportAllowanceAmount: string;
+  mealAllowanceEnabled: boolean;
+  mealAllowanceAmount: string;
+  positionAllowanceEnabled: boolean;
+  positionAllowanceAmount: string;
+  deductionBpjsHealth: boolean;
+  deductionPension: boolean;
   bankName: string;
   bankAccountNumber: string;
   accountHolderName: string;
@@ -61,6 +84,7 @@ function createInitialForm(): AddEmployeeForm {
     phone: "",
     birthDate: "",
     gender: "Male",
+    maritalStatus: "",
     ktp: "",
     employeeId: getNextEmployeeId(employees),
     department: "Engineering",
@@ -69,8 +93,18 @@ function createInitialForm(): AddEmployeeForm {
     status: "Active",
     joinDate: "",
     workLocation: "",
+    reportingManager: "",
     basicSalary: "",
+    salaryCurrency: "USD",
     paymentType: "Monthly",
+    transportAllowanceEnabled: true,
+    transportAllowanceAmount: "150",
+    mealAllowanceEnabled: false,
+    mealAllowanceAmount: "",
+    positionAllowanceEnabled: false,
+    positionAllowanceAmount: "",
+    deductionBpjsHealth: true,
+    deductionPension: false,
     bankName: "",
     bankAccountNumber: "",
     accountHolderName: "",
@@ -87,6 +121,11 @@ export default function AddEmployee() {
   const [activeStep, setActiveStep] = useState(0);
   const [form, setForm] = useState<AddEmployeeForm>(createInitialForm);
   const [isSaved, setIsSaved] = useState(false);
+  const [documentFiles, setDocumentFiles] = useState({
+    ktp: "",
+    contract: "",
+    npwp: "",
+  });
 
   const isFirstStep = activeStep === 0;
   const isLastStep = activeStep === steps.length - 1;
@@ -101,6 +140,700 @@ export default function AddEmployee() {
       ...previous,
       [name]: value,
     }));
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target;
+    setForm((previous) => ({
+      ...previous,
+      [name]: checked,
+    }));
+  };
+
+  const handleDocumentChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    key: "ktp" | "contract" | "npwp",
+  ) => {
+    const fileName = event.target.files?.[0]?.name ?? "";
+    setDocumentFiles((previous) => ({
+      ...previous,
+      [key]: fileName,
+    }));
+  };
+
+  const renderStepFields = () => {
+    if (activeStep === 0) {
+      return (
+        <div className="aev2-form-grid">
+          <div className="aev2-field full">
+            <label htmlFor="name">Nama Lengkap *</label>
+            <input
+              id="name"
+              className="input"
+              name="name"
+              value={form.name}
+              onChange={handleInputChange}
+              placeholder="contoh: Sarah Jenkins"
+            />
+          </div>
+
+          <div className="aev2-field">
+            <label htmlFor="ktp">Nomor Induk Kependudukan (NIK)</label>
+            <input
+              id="ktp"
+              className="input"
+              name="ktp"
+              value={form.ktp}
+              onChange={handleInputChange}
+              placeholder="contoh: 317123456789"
+            />
+          </div>
+
+          <div className="aev2-field aev2-with-icon">
+            <label htmlFor="birthDate">Tanggal Lahir</label>
+            <div className="aev2-input-icon-wrap">
+              <CalendarDays size={16} />
+              <input
+                id="birthDate"
+                className="input"
+                type="date"
+                name="birthDate"
+                value={form.birthDate}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+
+          <div className="aev2-field">
+            <label>Jenis Kelamin</label>
+            <div className="aev2-radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="Male"
+                  checked={form.gender === "Male"}
+                  onChange={handleInputChange}
+                />
+                <span>Laki-laki</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="Female"
+                  checked={form.gender === "Female"}
+                  onChange={handleInputChange}
+                />
+                <span>Perempuan</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="aev2-field">
+            <label htmlFor="maritalStatus">Status Pernikahan</label>
+            <select
+              id="maritalStatus"
+              className="input"
+              name="maritalStatus"
+              value={form.maritalStatus}
+              onChange={handleInputChange}
+            >
+              <option value="">Pilih status</option>
+              <option value="single">Belum Menikah</option>
+              <option value="married">Menikah</option>
+              <option value="divorced">Cerai</option>
+            </select>
+          </div>
+
+          <div className="aev2-field full aev2-with-icon">
+            <label htmlFor="email">Alamat Email</label>
+            <div className="aev2-input-icon-wrap">
+              <Mail size={16} />
+              <input
+                id="email"
+                className="input"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleInputChange}
+                placeholder="sarah.jenkins@acme.com"
+              />
+            </div>
+          </div>
+
+          <div className="aev2-field full aev2-with-icon">
+            <label htmlFor="phone">Nomor Telepon</label>
+            <div className="aev2-input-icon-wrap">
+              <Phone size={16} />
+              <input
+                id="phone"
+                className="input"
+                name="phone"
+                value={form.phone}
+                onChange={handleInputChange}
+                placeholder="+62 8xx xxxx xxxx"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeStep === 1) {
+      return (
+        <>
+          <div className="aev2-form-grid">
+            <div className="aev2-field">
+              <label htmlFor="department">
+                Departemen <span className="required">*</span>
+              </label>
+              <select
+                id="department"
+                className="input"
+                name="department"
+                value={form.department}
+                onChange={handleInputChange}
+              >
+                <option value="">Pilih Departemen</option>
+                <option>Engineering</option>
+                <option>Marketing</option>
+                <option>HR</option>
+                <option>Sales</option>
+                <option>Product</option>
+              </select>
+            </div>
+
+            <div className="aev2-field">
+              <label htmlFor="position">
+                Jabatan <span className="required">*</span>
+              </label>
+              <input
+                id="position"
+                className="input"
+                name="position"
+                value={form.position}
+                onChange={handleInputChange}
+                placeholder="contoh: Senior Software Engineer"
+              />
+            </div>
+
+            <div className="aev2-field">
+              <label htmlFor="employeeId">ID Karyawan</label>
+              <input
+                id="employeeId"
+                className="input aev2-readonly"
+                name="employeeId"
+                value={form.employeeId}
+                onChange={handleInputChange}
+                readOnly
+                placeholder="contoh: E006"
+              />
+              <small className="aev2-help-text">
+                ID ini dibuat otomatis oleh sistem.
+              </small>
+            </div>
+
+            <div className="aev2-field">
+              <label htmlFor="joinDate">
+                Tanggal Bergabung <span className="required">*</span>
+              </label>
+              <input
+                id="joinDate"
+                className="input"
+                type="date"
+                name="joinDate"
+                value={form.joinDate}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="aev2-field">
+              <label htmlFor="workLocation">
+                Lokasi Kerja <span className="required">*</span>
+              </label>
+              <select
+                id="workLocation"
+                className="input"
+                name="workLocation"
+                value={form.workLocation}
+                onChange={handleInputChange}
+              >
+                <option value="">Pilih Lokasi</option>
+                <option value="jakarta">Kantor Jakarta</option>
+                <option value="bandung">Kantor Bandung</option>
+                <option value="surabaya">Kantor Surabaya</option>
+                <option value="remote-id">Remote (Indonesia)</option>
+                <option value="remote-global">Remote (Global)</option>
+              </select>
+            </div>
+
+            <div className="aev2-field">
+              <label htmlFor="reportingManager">Atasan Langsung</label>
+              <select
+                id="reportingManager"
+                className="input"
+                name="reportingManager"
+                value={form.reportingManager}
+                onChange={handleInputChange}
+              >
+                <option value="">Pilih Karyawan...</option>
+                <option value="sarah">Sarah Connor</option>
+                <option value="john">John Wick</option>
+                <option value="ellen">Ellen Ripley</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="aev2-field aev2-employment-type">
+            <label>
+              Tipe Kepegawaian <span className="required">*</span>
+            </label>
+            <div className="aev2-type-grid">
+              <label className="aev2-type-card">
+                <input
+                  type="radio"
+                  name="employmentType"
+                  value="Permanent"
+                  checked={form.employmentType === "Permanent"}
+                  onChange={handleInputChange}
+                />
+                <div>
+                  <strong>Permanen</strong>
+                  <small>Kontrak kerja standar full-time</small>
+                </div>
+              </label>
+
+              <label className="aev2-type-card">
+                <input
+                  type="radio"
+                  name="employmentType"
+                  value="Contract"
+                  checked={form.employmentType === "Contract"}
+                  onChange={handleInputChange}
+                />
+                <div>
+                  <strong>Kontrak</strong>
+                  <small>Periode kerja dengan jangka waktu tertentu</small>
+                </div>
+              </label>
+
+              <label className="aev2-type-card">
+                <input
+                  type="radio"
+                  name="employmentType"
+                  value="Internship"
+                  checked={form.employmentType === "Internship"}
+                  onChange={handleInputChange}
+                />
+                <div>
+                  <strong>Magang</strong>
+                  <small>Program pembelajaran sementara</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    if (activeStep === 2) {
+      return (
+        <div className="aev2-salary-layout">
+          <section className="aev2-salary-section">
+            <h4>Detail Kompensasi</h4>
+            <div className="aev2-form-grid">
+              <div className="aev2-field">
+                <label htmlFor="basicSalary">Gaji Pokok (Bulanan)</label>
+                <div className="aev2-money-input">
+                  <span>$</span>
+                  <input
+                    id="basicSalary"
+                    className="input"
+                    type="number"
+                    name="basicSalary"
+                    value={form.basicSalary}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                  />
+                  <small>{form.salaryCurrency}</small>
+                </div>
+              </div>
+
+              <div className="aev2-field">
+                <label htmlFor="salaryCurrency">Mata Uang</label>
+                <select
+                  id="salaryCurrency"
+                  className="input"
+                  name="salaryCurrency"
+                  value={form.salaryCurrency}
+                  onChange={handleInputChange}
+                >
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section className="aev2-salary-section aev2-salary-muted">
+            <h4>Tunjangan</h4>
+
+            <div className="aev2-allowance-row">
+              <label>
+                <input
+                  type="checkbox"
+                  name="transportAllowanceEnabled"
+                  checked={form.transportAllowanceEnabled}
+                  onChange={handleCheckboxChange}
+                />
+                <span>
+                  <strong>Tunjangan Transport</strong>
+                  <small>Kompensasi perjalanan bulanan</small>
+                </span>
+              </label>
+              <div className="aev2-allowance-input">
+                <span>$</span>
+                <input
+                  className="input"
+                  name="transportAllowanceAmount"
+                  value={form.transportAllowanceAmount}
+                  onChange={handleInputChange}
+                  disabled={!form.transportAllowanceEnabled}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="aev2-allowance-row">
+              <label>
+                <input
+                  type="checkbox"
+                  name="mealAllowanceEnabled"
+                  checked={form.mealAllowanceEnabled}
+                  onChange={handleCheckboxChange}
+                />
+                <span>
+                  <strong>Tunjangan Makan</strong>
+                  <small>Uang makan harian atau bulanan</small>
+                </span>
+              </label>
+              <div className="aev2-allowance-input">
+                <span>$</span>
+                <input
+                  className="input"
+                  name="mealAllowanceAmount"
+                  value={form.mealAllowanceAmount}
+                  onChange={handleInputChange}
+                  disabled={!form.mealAllowanceEnabled}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="aev2-allowance-row">
+              <label>
+                <input
+                  type="checkbox"
+                  name="positionAllowanceEnabled"
+                  checked={form.positionAllowanceEnabled}
+                  onChange={handleCheckboxChange}
+                />
+                <span>
+                  <strong>Tunjangan Jabatan</strong>
+                  <small>Tambahan untuk posisi senior</small>
+                </span>
+              </label>
+              <div className="aev2-allowance-input">
+                <span>$</span>
+                <input
+                  className="input"
+                  name="positionAllowanceAmount"
+                  value={form.positionAllowanceAmount}
+                  onChange={handleInputChange}
+                  disabled={!form.positionAllowanceEnabled}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="aev2-salary-section">
+            <h4>Potongan Wajib</h4>
+            <div className="aev2-deduction-grid">
+              <label className="aev2-deduction-item">
+                <input
+                  type="checkbox"
+                  name="deductionBpjsHealth"
+                  checked={form.deductionBpjsHealth}
+                  onChange={handleCheckboxChange}
+                />
+                <span>
+                  <strong>BPJS Kesehatan</strong>
+                  <small>Potongan standar 1% dari karyawan.</small>
+                </span>
+              </label>
+
+              <label className="aev2-deduction-item">
+                <input
+                  type="checkbox"
+                  name="deductionPension"
+                  checked={form.deductionPension}
+                  onChange={handleCheckboxChange}
+                />
+                <span>
+                  <strong>Skema Pensiun</strong>
+                  <small>Kontribusi sukarela 2%.</small>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section className="aev2-salary-section aev2-salary-muted">
+            <h4>Informasi Bank</h4>
+            <div className="aev2-bank-grid">
+              <div className="aev2-field">
+                <label htmlFor="bankName">Nama Bank</label>
+                <select
+                  id="bankName"
+                  className="input"
+                  name="bankName"
+                  value={form.bankName}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Pilih Bank</option>
+                  <option value="chase">Chase Bank</option>
+                  <option value="boa">Bank of America</option>
+                  <option value="wells">Wells Fargo</option>
+                </select>
+              </div>
+
+              <div className="aev2-field">
+                <label htmlFor="bankAccountNumber">Nomor Rekening</label>
+                <input
+                  id="bankAccountNumber"
+                  className="input"
+                  name="bankAccountNumber"
+                  value={form.bankAccountNumber}
+                  onChange={handleInputChange}
+                  placeholder="0000 0000 0000"
+                />
+              </div>
+
+              <div className="aev2-field">
+                <label htmlFor="accountHolderName">Nama Pemilik Rekening</label>
+                <input
+                  id="accountHolderName"
+                  className="input"
+                  name="accountHolderName"
+                  value={form.accountHolderName}
+                  onChange={handleInputChange}
+                  placeholder="Nama legal lengkap"
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    return (
+      <div className="aev2-docs-layout">
+        <div className="aev2-docs-left">
+          <div className="aev2-docs-head">
+            <h4>Dokumen Wajib</h4>
+            <p>
+              Unggah dokumen karyawan dengan file yang valid dan terbaca jelas.
+            </p>
+          </div>
+
+          <article className="aev2-doc-card">
+            <div className="aev2-doc-card-top">
+              <div className="aev2-doc-icon">
+                <IdCard size={28} />
+              </div>
+              <div className="aev2-doc-content">
+                <h5>KTP / Kartu Identitas</h5>
+                <p>
+                  Scan harus menampilkan foto dan nomor identitas dengan jelas.
+                  Maks 5MB.
+                </p>
+                <div className="aev2-doc-actions">
+                  <label htmlFor="ktpUpload">
+                    <Upload size={16} /> Pilih File
+                    <input
+                      id="ktpUpload"
+                      type="file"
+                      onChange={(event) => handleDocumentChange(event, "ktp")}
+                    />
+                  </label>
+                  <span>Atau drag & drop di sini</span>
+                </div>
+              </div>
+            </div>
+
+            {documentFiles.ktp && (
+              <div className="aev2-doc-uploaded">
+                <div>
+                  <FileCheck2 size={16} />
+                  <span>{documentFiles.ktp}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDocumentFiles((previous) => ({ ...previous, ktp: "" }))
+                  }
+                  aria-label="Hapus file KTP"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )}
+          </article>
+
+          <article className="aev2-doc-card">
+            <div className="aev2-doc-card-top">
+              <div className="aev2-doc-icon primary">
+                <Upload size={28} />
+              </div>
+              <div className="aev2-doc-content">
+                <h5>Kontrak Kerja Ditandatangani</h5>
+                <p>
+                  Unggah salinan PDF kontrak yang sudah ditandatangani. Maks
+                  10MB.
+                </p>
+                <div className="aev2-doc-actions">
+                  <label htmlFor="contractUpload" className="solid">
+                    Pilih File
+                    <input
+                      id="contractUpload"
+                      type="file"
+                      onChange={(event) =>
+                        handleDocumentChange(event, "contract")
+                      }
+                    />
+                  </label>
+                  <span>PDF dan JPG didukung</span>
+                </div>
+              </div>
+            </div>
+
+            {documentFiles.contract && (
+              <div className="aev2-doc-uploaded">
+                <div>
+                  <FileCheck2 size={16} />
+                  <span>{documentFiles.contract}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDocumentFiles((previous) => ({
+                      ...previous,
+                      contract: "",
+                    }))
+                  }
+                  aria-label="Hapus file kontrak"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )}
+          </article>
+
+          <article className="aev2-doc-card">
+            <div className="aev2-doc-card-top">
+              <div className="aev2-doc-icon">
+                <ReceiptText size={28} />
+              </div>
+              <div className="aev2-doc-content">
+                <h5>NPWP</h5>
+                <p>
+                  Opsional untuk saat ini. Dokumen dapat diunggah oleh karyawan
+                  nanti.
+                </p>
+                <div className="aev2-doc-actions">
+                  <label htmlFor="npwpUpload">
+                    <Upload size={16} /> Pilih File
+                    <input
+                      id="npwpUpload"
+                      type="file"
+                      onChange={(event) => handleDocumentChange(event, "npwp")}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {documentFiles.npwp && (
+              <div className="aev2-doc-uploaded">
+                <div>
+                  <FileCheck2 size={16} />
+                  <span>{documentFiles.npwp}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDocumentFiles((previous) => ({ ...previous, npwp: "" }))
+                  }
+                  aria-label="Hapus file NPWP"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )}
+          </article>
+        </div>
+
+        <aside className="aev2-docs-summary">
+          <div className="aev2-summary-head">
+            <h4>Ringkasan</h4>
+            <button type="button">
+              <Pencil size={14} /> Edit
+            </button>
+          </div>
+
+          <div className="aev2-summary-body">
+            <div className="aev2-summary-identity">
+              <div className="avatar">{form.name?.charAt(0) || "U"}</div>
+              <div>
+                <p>{form.name || "Nama belum diisi"}</p>
+                <span>ID: {form.employeeId || "-"}</span>
+              </div>
+            </div>
+
+            <div className="aev2-summary-grid">
+              <div>
+                <label>Jabatan</label>
+                <p>{form.position || "-"}</p>
+              </div>
+              <div>
+                <label>Departemen</label>
+                <p>{form.department || "-"}</p>
+              </div>
+              <div>
+                <label>Tanggal Mulai</label>
+                <p>{form.joinDate || "-"}</p>
+              </div>
+            </div>
+
+            <div className="aev2-summary-salary">
+              <label>Gaji Pokok Bulanan</label>
+              <p>
+                {form.salaryCurrency} {form.basicSalary || "0.00"}
+              </p>
+            </div>
+
+            <div className="aev2-summary-alert">
+              <AlertCircle size={16} />
+              <span>
+                Mohon cek kembali seluruh data sebelum submit. Setelah dikirim,
+                perubahan membutuhkan persetujuan admin.
+              </span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    );
   };
 
   const handleSaveEmployee = () => {
@@ -131,480 +864,138 @@ export default function AddEmployee() {
 
   return (
     <PageShell
-      title="Add Employee"
-      subtitle="Onboard a new employee with step-by-step form"
-      breadcrumbs={[{ label: "Employees", to: "/employees" }, { label: "New" }]}
+      title="Tambah Karyawan Baru"
+      subtitle="Masukkan detail data karyawan yang akan didaftarkan."
+      breadcrumbs={[
+        { label: "Karyawan", to: "/employees" },
+        { label: "Tambah Baru" },
+      ]}
     >
-      <div style={{ display: "flex", gap: "4px", marginBottom: "28px" }}>
-        {steps.map((step, index) => {
-          const isActive = activeStep === index;
+      <section className="add-employee-v2">
+        <div className="aev2-stepper">
+          <div className="aev2-stepper-line" />
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = activeStep === index;
+            const isDone = activeStep > index;
 
-          return (
-            <button
-              key={step.label}
-              type="button"
-              onClick={() => setActiveStep(index)}
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "14px 18px",
-                borderRadius: "var(--radius-md)",
-                background: isActive
-                  ? "rgba(99, 102, 241, 0.1)"
-                  : "rgba(15, 23, 42, 0.4)",
-                border: `1px solid ${isActive ? "rgba(99, 102, 241, 0.3)" : "var(--glass-border)"}`,
-                cursor: "pointer",
-                transition: "all var(--transition-fast)",
-                textAlign: "left",
-              }}
-            >
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: isActive
-                    ? "var(--primary-600)"
-                    : "var(--surface-700)",
-                  color: isActive ? "white" : "var(--surface-400)",
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
-                }}
-              >
-                {index + 1}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.85rem",
-                  fontWeight: 500,
-                  color: isActive ? "var(--primary-400)" : "var(--surface-400)",
-                }}
-              >
-                {step.label}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="card">
-        {activeStep === 0 && (
-          <>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--surface-200)",
-                marginBottom: "20px",
-              }}
-            >
-              Personal Information
-            </h3>
-            <div className="grid grid-2" style={{ gap: "16px" }}>
-              <div className="input-group">
-                <label>Full Name *</label>
-                <input
-                  className="input"
-                  name="name"
-                  value={form.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="input-group">
-                <label>Email Address</label>
-                <input
-                  className="input"
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleInputChange}
-                  placeholder="email@company.com"
-                />
-              </div>
-              <div className="input-group">
-                <label>Phone Number</label>
-                <input
-                  className="input"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleInputChange}
-                  placeholder="+62 xxx"
-                />
-              </div>
-              <div className="input-group">
-                <label>Date of Birth</label>
-                <input
-                  className="input"
-                  type="date"
-                  name="birthDate"
-                  value={form.birthDate}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="input-group">
-                <label>Gender</label>
-                <select
-                  className="input"
-                  name="gender"
-                  value={form.gender}
-                  onChange={handleInputChange}
-                >
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label>National ID (KTP)</label>
-                <input
-                  className="input"
-                  name="ktp"
-                  value={form.ktp}
-                  onChange={handleInputChange}
-                  placeholder="16 digit number"
-                />
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeStep === 1 && (
-          <>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--surface-200)",
-                marginBottom: "20px",
-              }}
-            >
-              Employment Information
-            </h3>
-            <div className="grid grid-2" style={{ gap: "16px" }}>
-              <div className="input-group">
-                <label>Employee ID</label>
-                <input
-                  className="input"
-                  name="employeeId"
-                  value={form.employeeId}
-                  onChange={handleInputChange}
-                  placeholder="e.g. E006"
-                />
-              </div>
-              <div className="input-group">
-                <label>Department</label>
-                <select
-                  className="input"
-                  name="department"
-                  value={form.department}
-                  onChange={handleInputChange}
-                >
-                  <option>Engineering</option>
-                  <option>HR</option>
-                  <option>Finance</option>
-                  <option>Marketing</option>
-                  <option>Operations</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label>Position *</label>
-                <input
-                  className="input"
-                  name="position"
-                  value={form.position}
-                  onChange={handleInputChange}
-                  placeholder="Job title"
-                />
-              </div>
-              <div className="input-group">
-                <label>Employment Type</label>
-                <select
-                  className="input"
-                  name="employmentType"
-                  value={form.employmentType}
-                  onChange={handleInputChange}
-                >
-                  <option>Permanent</option>
-                  <option>Contract</option>
-                  <option>Probation</option>
-                  <option>Internship</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label>Status</label>
-                <select
-                  className="input"
-                  name="status"
-                  value={form.status}
-                  onChange={handleInputChange}
-                >
-                  <option>Active</option>
-                  <option>Probation</option>
-                  <option>On Leave</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label>Join Date</label>
-                <input
-                  className="input"
-                  type="date"
-                  name="joinDate"
-                  value={form.joinDate}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="input-group">
-                <label>Work Location</label>
-                <input
-                  className="input"
-                  name="workLocation"
-                  value={form.workLocation}
-                  onChange={handleInputChange}
-                  placeholder="Office / Branch"
-                />
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeStep === 2 && (
-          <>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--surface-200)",
-                marginBottom: "20px",
-              }}
-            >
-              Salary Information
-            </h3>
-            <div className="grid grid-2" style={{ gap: "16px" }}>
-              <div className="input-group">
-                <label>Basic Salary</label>
-                <input
-                  className="input"
-                  type="number"
-                  name="basicSalary"
-                  value={form.basicSalary}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                />
-              </div>
-              <div className="input-group">
-                <label>Payment Type</label>
-                <select
-                  className="input"
-                  name="paymentType"
-                  value={form.paymentType}
-                  onChange={handleInputChange}
-                >
-                  <option>Monthly</option>
-                  <option>Weekly</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label>Bank Name</label>
-                <input
-                  className="input"
-                  name="bankName"
-                  value={form.bankName}
-                  onChange={handleInputChange}
-                  placeholder="Bank name"
-                />
-              </div>
-              <div className="input-group">
-                <label>Bank Account Number</label>
-                <input
-                  className="input"
-                  name="bankAccountNumber"
-                  value={form.bankAccountNumber}
-                  onChange={handleInputChange}
-                  placeholder="Account number"
-                />
-              </div>
-              <div className="input-group">
-                <label>Account Holder Name</label>
-                <input
-                  className="input"
-                  name="accountHolderName"
-                  value={form.accountHolderName}
-                  onChange={handleInputChange}
-                  placeholder="As per bank account"
-                />
-              </div>
-              <div className="input-group">
-                <label>Tax Status (PTKP)</label>
-                <select
-                  className="input"
-                  name="taxStatus"
-                  value={form.taxStatus}
-                  onChange={handleInputChange}
-                >
-                  <option>TK/0</option>
-                  <option>K/0</option>
-                  <option>K/1</option>
-                  <option>K/2</option>
-                  <option>K/3</option>
-                </select>
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeStep === 3 && (
-          <>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--surface-200)",
-                marginBottom: "20px",
-              }}
-            >
-              Documents
-            </h3>
-            <div className="grid grid-2" style={{ gap: "16px" }}>
-              <div className="input-group">
-                <label>KTP Number</label>
-                <input
-                  className="input"
-                  name="ktp"
-                  value={form.ktp}
-                  onChange={handleInputChange}
-                  placeholder="16 digit number"
-                />
-              </div>
-              <div className="input-group">
-                <label>NPWP Number</label>
-                <input
-                  className="input"
-                  name="npwp"
-                  value={form.npwp}
-                  onChange={handleInputChange}
-                  placeholder="NPWP number"
-                />
-              </div>
-              <div className="input-group">
-                <label>BPJS Kesehatan</label>
-                <input
-                  className="input"
-                  name="bpjsHealth"
-                  value={form.bpjsHealth}
-                  onChange={handleInputChange}
-                  placeholder="BPJS number"
-                />
-              </div>
-              <div className="input-group">
-                <label>BPJS Ketenagakerjaan</label>
-                <input
-                  className="input"
-                  name="bpjsEmployment"
-                  value={form.bpjsEmployment}
-                  onChange={handleInputChange}
-                  placeholder="BPJS number"
-                />
-              </div>
-              <div className="input-group">
-                <label>Contract File</label>
-                <input className="input" type="file" />
-              </div>
-              <div className="input-group">
-                <label>Additional Notes</label>
-                <input
-                  className="input"
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleInputChange}
-                  placeholder="Optional notes"
-                />
-              </div>
-            </div>
-          </>
-        )}
-
-        {!isFormValid && (
-          <p
-            style={{
-              marginTop: "12px",
-              fontSize: "0.82rem",
-              color: "var(--warning)",
-            }}
-          >
-            Full Name dan Position wajib diisi sebelum Save Employee.
-          </p>
-        )}
-
-        {isSaved && (
-          <p
-            style={{
-              marginTop: "12px",
-              fontSize: "0.84rem",
-              color: "var(--success)",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <CheckCircle2 size={16} /> Employee berhasil disimpan, mengarahkan
-            ke list...
-          </p>
-        )}
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "10px",
-            marginTop: "24px",
-          }}
-        >
-          <div>
-            {!isFirstStep && (
+            return (
               <button
-                className="btn btn-secondary"
+                key={step.label}
                 type="button"
-                onClick={() => setActiveStep((prev) => prev - 1)}
+                onClick={() => setActiveStep(index)}
+                className="aev2-step"
               >
-                <ArrowLeft size={16} /> Back
+                <span
+                  className={`aev2-step-circle ${isActive ? "active" : ""} ${isDone ? "done" : ""}`}
+                >
+                  <Icon size={16} />
+                </span>
+                <span className={`aev2-step-label ${isActive ? "active" : ""}`}>
+                  {step.label}
+                </span>
               </button>
+            );
+          })}
+        </div>
+
+        <div className="aev2-card card">
+          <div
+            className={`aev2-card-body ${activeStep !== 0 ? "aev2-no-side" : ""}`}
+          >
+            <div className="aev2-main-column">
+              <h3>{steps[activeStep].label}</h3>
+              {renderStepFields()}
+            </div>
+
+            {activeStep === 0 && (
+              <aside className="aev2-side-column">
+                <p className="label">Foto Profil</p>
+                <div className="aev2-upload-box">
+                  <div className="aev2-avatar-preview">
+                    <User size={42} />
+                    <button type="button" aria-label="Edit avatar">
+                      <ImagePlus size={14} />
+                    </button>
+                  </div>
+
+                  <label
+                    className="aev2-upload-trigger"
+                    htmlFor="employee-avatar"
+                  >
+                    <span>Unggah file</span> atau seret dan lepas
+                    <input id="employee-avatar" type="file" />
+                  </label>
+                  <small>PNG, JPG, GIF hingga 2MB</small>
+                </div>
+
+                <div className="aev2-tip-box">
+                  <Info size={14} />
+                  <p>
+                    Pastikan NIK dan email valid. Email akan digunakan sebagai
+                    kredensial login karyawan.
+                  </p>
+                </div>
+              </aside>
             )}
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
+
+          <div className="aev2-footer-actions">
             <button
               className="btn btn-secondary"
               type="button"
               onClick={() => navigate("/employees")}
               disabled={isSaved}
             >
-              Cancel
+              Batal
             </button>
-            {!isLastStep ? (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => setActiveStep((prev) => prev + 1)}
-              >
-                Save & Continue <ArrowRight size={16} />
-              </button>
-            ) : (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={handleSaveEmployee}
-                disabled={!isFormValid || isSaved}
-              >
-                <Save size={16} /> Save Employee
-              </button>
-            )}
+
+            <div className="aev2-right-actions">
+              {!isFirstStep && (
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={() => setActiveStep((prev) => prev - 1)}
+                >
+                  <ArrowLeft size={16} /> Kembali
+                </button>
+              )}
+
+              {!isLastStep ? (
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={() => setActiveStep((prev) => prev + 1)}
+                >
+                  Lanjut: {steps[activeStep + 1].label} <ArrowRight size={16} />
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={handleSaveEmployee}
+                  disabled={!isFormValid || isSaved}
+                >
+                  <Save size={16} /> Simpan Karyawan
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+
+        {!isFormValid && (
+          <p className="aev2-warning-note">
+            Nama Lengkap dan Jabatan wajib diisi sebelum menyimpan karyawan.
+          </p>
+        )}
+
+        {isSaved && (
+          <p className="aev2-success-note">
+            <CheckCircle2 size={16} /> Karyawan berhasil disimpan, mengarahkan
+            ke daftar...
+          </p>
+        )}
+      </section>
     </PageShell>
   );
 }
