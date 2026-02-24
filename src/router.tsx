@@ -167,6 +167,12 @@ const router = createBrowserRouter([
         element: lazyPage(() => import("./pages/payroll/PayrollProcess")),
       },
       {
+        path: "payroll/process/continue",
+        element: lazyPage(
+          () => import("./pages/payroll/PayrollProcessContinue"),
+        ),
+      },
+      {
         path: "payroll/history",
         element: lazyPage(() => import("./pages/payroll/PayrollHistory")),
       },

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../../middleware/auth.middleware.js";
+import { requireAdmin } from "../../middleware/admin.middleware.js";
 import { requirePermission } from "../../middleware/rbac.middleware.js";
 import { ok } from "../../utils/api-response.js";
 import {
@@ -57,6 +58,7 @@ usersRouter.get(
 usersRouter.post(
   "/",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canCreate"),
   async (req, res) => {
     const payload = createUserSchema.parse(req.body);
@@ -68,6 +70,7 @@ usersRouter.post(
 usersRouter.put(
   "/:id",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canEdit"),
   async (req, res) => {
     const id = String(req.params.id);
@@ -80,6 +83,7 @@ usersRouter.put(
 usersRouter.patch(
   "/:id/status",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canEdit"),
   async (req, res) => {
     const id = String(req.params.id);
@@ -92,6 +96,7 @@ usersRouter.patch(
 usersRouter.delete(
   "/:id",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canDelete"),
   async (req, res) => {
     const id = String(req.params.id);

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../../middleware/auth.middleware.js";
+import { requireAdmin } from "../../middleware/admin.middleware.js";
 import { requirePermission } from "../../middleware/rbac.middleware.js";
 import { ok } from "../../utils/api-response.js";
 import { rolesService } from "./roles.service.js";
@@ -34,6 +35,7 @@ rolesRouter.get(
 rolesRouter.post(
   "/",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canCreate"),
   async (req, res) => {
     const payload = roleInputSchema.parse(req.body);
@@ -45,6 +47,7 @@ rolesRouter.post(
 rolesRouter.put(
   "/:id",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canEdit"),
   async (req, res) => {
     const id = String(req.params.id);
@@ -57,6 +60,7 @@ rolesRouter.put(
 rolesRouter.put(
   "/:id/permissions",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canEdit"),
   async (req, res) => {
     const id = String(req.params.id);
@@ -69,6 +73,7 @@ rolesRouter.put(
 rolesRouter.delete(
   "/:id",
   requireAuth,
+  requireAdmin,
   requirePermission("settings", "canDelete"),
   async (req, res) => {
     const id = String(req.params.id);

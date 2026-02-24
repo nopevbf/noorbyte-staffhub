@@ -14,6 +14,14 @@ const envSchema = z.object({
     .transform((value) => value === "true"),
   BETTER_AUTH_SECRET: z.string().min(16),
   BETTER_AUTH_BASE_URL: z.string().url(),
+  CORS_ALLOWED_ORIGINS: z.string().default(""),
+  PRODUCTION_DOMAIN: z.string().default("example.com"),
+  REDIRECT_ALLOWLIST: z
+    .string()
+    .default("http://localhost:5173,https://example.com"),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  JWT_EXPIRES_IN_DAYS: z.coerce.number().int().positive().default(7),
 });
 
 export const env = envSchema.parse(process.env);

@@ -4,12 +4,14 @@ declare global {
       authUser?: {
         id: string;
         roleId?: string | null;
+        role?: string | null;
         status?: string;
       };
       authSession?: {
         id: string;
         expiresAt: string | Date;
       };
+      stripeEvent?: unknown;
       requestId?: string;
     }
   }

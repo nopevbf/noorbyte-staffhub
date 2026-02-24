@@ -1,4 +1,5 @@
 import PageShell from "../../components/common/PageShell";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -13,63 +14,65 @@ import {
 
 const quickActions = [
   {
-    title: "Salary Master",
+    title: "Master Gaji",
     icon: <Wallet size={20} />,
     tone: "var(--primary-400)",
   },
-  { title: "Overtime", icon: <Clock3 size={20} />, tone: "var(--warning)" },
-  { title: "Deductions", icon: <Hourglass size={20} />, tone: "var(--info)" },
+  { title: "Lembur", icon: <Clock3 size={20} />, tone: "var(--warning)" },
+  { title: "Potongan", icon: <Hourglass size={20} />, tone: "var(--info)" },
   {
-    title: "Tax Reports",
+    title: "Laporan Pajak",
     icon: <FileText size={20} />,
     tone: "var(--success)",
   },
 ];
 
 const costTrend = [
-  { month: "Sep", value: "$0.9M", height: "60%" },
-  { month: "Oct", value: "$1.0M", height: "65%" },
-  { month: "Nov", value: "$0.8M", height: "55%" },
-  { month: "Dec", value: "$1.2M", height: "80%" },
-  { month: "Jan", value: "$1.24M", height: "85%" },
-  { month: "Feb", value: "$1.25M", height: "90%", active: true },
+  { month: "Sep", value: "Rp 0.9M", height: "60%" },
+  { month: "Okt", value: "Rp 1.0M", height: "65%" },
+  { month: "Nov", value: "Rp 0.8M", height: "55%" },
+  { month: "Des", value: "Rp 1.2M", height: "80%" },
+  { month: "Jan", value: "Rp 1.24M", height: "85%" },
+  { month: "Feb", value: "Rp 1.25M", height: "90%", active: true },
 ];
 
 const payrollHistory = [
   {
     period: "Jan 2026",
-    payout: "$1,245,300.00",
+    payout: "Rp 1,245,300,000",
     employees: 140,
     paymentDate: "25 Jan 2026",
   },
   {
-    period: "Dec 2025",
-    payout: "$1,210,500.00",
+    period: "Des 2025",
+    payout: "Rp 1,210,500,000",
     employees: 138,
-    paymentDate: "24 Dec 2025",
+    paymentDate: "24 Des 2025",
   },
   {
     period: "Nov 2025",
-    payout: "$1,198,200.00",
+    payout: "Rp 1,198,200,000",
     employees: 135,
     paymentDate: "25 Nov 2025",
   },
 ];
 
 const processingSteps = [
-  "1. Data Sync",
-  "2. Validation",
-  "3. Calculation",
-  "4. Approval",
-  "5. Disbursal",
+  "1. Sinkronisasi Data",
+  "2. Validasi",
+  "3. Perhitungan",
+  "4. Persetujuan",
+  "5. Pencairan",
 ];
 
 export default function PayrollProcess() {
+  const navigate = useNavigate();
+
   return (
     <PageShell
-      title="Payroll Dashboard"
-      subtitle="Overview of current payroll status and historical data"
-      breadcrumbs={[{ label: "Payroll" }, { label: "Process" }]}
+      title="Dasbor Penggajian"
+      subtitle="Ringkasan status payroll saat ini dan data historis"
+      breadcrumbs={[{ label: "Penggajian" }, { label: "Proses" }]}
       actions={
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <span
@@ -83,10 +86,10 @@ export default function PayrollProcess() {
               fontWeight: 600,
             }}
           >
-            Feb 2026 Cycle
+            Siklus Feb 2026
           </span>
           <button className="btn btn-secondary btn-sm">
-            <Download size={15} /> Export
+            <Download size={15} /> Ekspor
           </button>
         </div>
       }
@@ -97,8 +100,8 @@ export default function PayrollProcess() {
             <ArrowUpRight size={22} />
           </div>
           <div className="stat-content">
-            <h3>Total Payroll (Current)</h3>
-            <div className="stat-value">$1,250,000</div>
+            <h3>Total Payroll (Saat Ini)</h3>
+            <div className="stat-value">Rp 1,250,000,000</div>
             <div className="stat-change up">+2.4%</div>
           </div>
         </div>
@@ -108,7 +111,7 @@ export default function PayrollProcess() {
             <Users size={22} />
           </div>
           <div className="stat-content">
-            <h3>Headcount Paid</h3>
+            <h3>Karyawan Dibayar</h3>
             <div className="stat-value">142 / 145</div>
           </div>
         </div>
@@ -118,13 +121,13 @@ export default function PayrollProcess() {
             <Hourglass size={22} />
           </div>
           <div className="stat-content">
-            <h3>Pending Approvals</h3>
+            <h3>Persetujuan Tertunda</h3>
             <div className="stat-value">12</div>
             <div
               className="stat-change"
               style={{ color: "var(--surface-400)" }}
             >
-              Overtime requests
+              Pengajuan lembur
             </div>
           </div>
         </div>
@@ -134,7 +137,7 @@ export default function PayrollProcess() {
             <CalendarDays size={22} />
           </div>
           <div className="stat-content">
-            <h3>Next Payout Date</h3>
+            <h3>Tanggal Pembayaran Berikutnya</h3>
             <div className="stat-value" style={{ fontSize: "1.25rem" }}>
               25 Feb 2026
             </div>
@@ -142,7 +145,7 @@ export default function PayrollProcess() {
               className="stat-change"
               style={{ color: "var(--surface-400)" }}
             >
-              4 days remaining
+              4 hari lagi
             </div>
           </div>
         </div>
@@ -179,11 +182,11 @@ export default function PayrollProcess() {
                     color: "var(--surface-200)",
                   }}
                 >
-                  Active Cycle: February 2026
+                  Siklus Aktif: Februari 2026
                 </h3>
               </div>
               <span style={{ fontSize: "0.8rem", color: "var(--surface-400)" }}>
-                Processing Step 3 of 5
+                Tahap Proses 3 dari 5
               </span>
             </div>
 
@@ -204,16 +207,19 @@ export default function PayrollProcess() {
                       fontWeight: 600,
                     }}
                   >
-                    Calculation in progress
+                    Perhitungan sedang berjalan
                   </p>
                   <p
                     style={{ fontSize: "0.85rem", color: "var(--surface-400)" }}
                   >
-                    Analyzing attendance data and tax deductions.
+                    Menganalisis data kehadiran dan potongan pajak.
                   </p>
                 </div>
-                <button className="btn btn-primary btn-sm">
-                  Resume Processing
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => navigate("/payroll/process/continue")}
+                >
+                  Lanjutkan Proses
                 </button>
               </div>
 
@@ -231,7 +237,7 @@ export default function PayrollProcess() {
                     fontWeight: 600,
                   }}
                 >
-                  Completion
+                  Penyelesaian
                 </span>
                 <span
                   style={{
@@ -301,13 +307,13 @@ export default function PayrollProcess() {
               }}
             >
               <h3 style={{ fontSize: "1rem", color: "var(--surface-100)" }}>
-                Payroll History
+                Riwayat Penggajian
               </h3>
               <a
                 href="/payroll/history"
                 style={{ fontSize: "0.85rem", fontWeight: 600 }}
               >
-                View All History
+                Lihat Semua Riwayat
               </a>
             </div>
 
@@ -318,12 +324,12 @@ export default function PayrollProcess() {
               <table>
                 <thead>
                   <tr>
-                    <th>Period</th>
-                    <th style={{ textAlign: "right" }}>Total Payout</th>
-                    <th style={{ textAlign: "center" }}>Employees</th>
-                    <th>Payment Date</th>
+                    <th>Periode</th>
+                    <th style={{ textAlign: "right" }}>Total Pembayaran</th>
+                    <th style={{ textAlign: "center" }}>Karyawan</th>
+                    <th>Tanggal Bayar</th>
                     <th>Status</th>
-                    <th style={{ textAlign: "right" }}>Action</th>
+                    <th style={{ textAlign: "right" }}>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -345,11 +351,11 @@ export default function PayrollProcess() {
                       <td style={{ textAlign: "center" }}>{row.employees}</td>
                       <td>{row.paymentDate}</td>
                       <td>
-                        <span className="badge badge-success">Paid</span>
+                        <span className="badge badge-success">Dibayar</span>
                       </td>
                       <td style={{ textAlign: "right" }}>
                         <button className="btn btn-ghost btn-sm">
-                          View Details
+                          Lihat Detail
                         </button>
                       </td>
                     </tr>
@@ -363,7 +369,7 @@ export default function PayrollProcess() {
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div>
             <h3 style={{ marginBottom: "12px", color: "var(--surface-200)" }}>
-              Quick Actions
+              Aksi Cepat
             </h3>
             <div className="grid grid-2" style={{ gap: "12px" }}>
               {quickActions.map((action) => (
@@ -421,7 +427,7 @@ export default function PayrollProcess() {
               }}
             >
               <h3 style={{ color: "var(--surface-100)", fontSize: "1rem" }}>
-                Cost Trend
+                Tren Biaya
               </h3>
               <select
                 className="input"
@@ -431,8 +437,8 @@ export default function PayrollProcess() {
                   width: "110px",
                 }}
               >
-                <option>6 Months</option>
-                <option>1 Year</option>
+                <option>6 Bulan</option>
+                <option>1 Tahun</option>
               </select>
             </div>
 
