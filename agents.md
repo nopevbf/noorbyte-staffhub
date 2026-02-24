@@ -53,3 +53,16 @@ npm run db:seed
 
 - Setup PostgreSQL mengacu ke: `docs/postgresql-setup.md`
 - Route backend ringkas mengacu ke: `server/README.md`
+
+## 7) Peraturan Keamanan Tambahan
+
+1. Configure CORS agar hanya mengizinkan request dari domain production `example.com` (untuk nanti).
+2. Pastikan semua redirect URL divalidasi terhadap allowlist sebelum melakukan redirect user.
+3. Buat storage policies agar user hanya bisa mengakses file yang mereka upload sendiri.
+4. Hapus semua `console.log` dan ganti dengan mekanisme error logging yang proper.
+5. Verifikasi webhook signature menggunakan Stripe SDK sebelum memproses data pembayaran apa pun.
+6. Di server, cek `user.role === 'admin'` sebelum mengeksekusi aksi yang membutuhkan admin.
+7. Setelah build, jalankan `npm audit fix` dan tanyakan: "Are there breaking changes in the latest versions i should know about?"
+8. Tambahkan rate limiting pada route reset password: maksimal 3 request per email per jam.
+9. Tangkap semua error dan kembalikan pesan generik ke user; detail error hanya dilog di server-side.
+10. Set JWT expiration ke 7 hari dan implementasikan refresh token rotation.
