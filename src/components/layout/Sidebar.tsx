@@ -1,137 +1,140 @@
-import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Users,
   Clock,
   Wallet,
+  ChevronRight,
   TrendingUp,
   MessageSquare,
   BarChart3,
   Settings,
-  ChevronRight,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
-interface NavChild {
+interface NavItem {
+  icon: React.ReactNode;
   label: string;
   to: string;
 }
 
-interface NavGroup {
-  icon: React.ReactNode;
+interface SubNavItem {
   label: string;
-  basePath: string;
-  children: NavChild[];
+  to: string;
 }
 
-const navGroups: NavGroup[] = [
+const mainNavItems: NavItem[] = [
   {
     icon: <LayoutDashboard size={20} />,
     label: "Dashboard",
-    basePath: "/dashboard",
-    children: [
-      { label: "Overview", to: "/dashboard" },
-      { label: "Notifications", to: "/notifications" },
-    ],
+    to: "/dashboard",
   },
   {
     icon: <Users size={20} />,
     label: "Employees",
-    basePath: "/employees",
-    children: [
-      { label: "All Employees", to: "/employees" },
-      { label: "Add Employee", to: "/employees/new" },
-      { label: "Org Structure", to: "/employees/structure" },
-      { label: "Contracts", to: "/employees/contracts" },
-      { label: "Bulk Import", to: "/employees/bulk-import" },
-    ],
+    to: "/employees",
   },
   {
     icon: <Clock size={20} />,
     label: "Attendance",
-    basePath: "/attendance",
-    children: [
-      { label: "Live Monitor", to: "/attendance/live" },
-      { label: "Summary", to: "/attendance/summary" },
-      { label: "Manual Entry", to: "/attendance/manual" },
-      { label: "Overtime", to: "/attendance/overtime" },
-      { label: "Leave", to: "/attendance/leave" },
-      { label: "Work Calendar", to: "/attendance/calendar" },
-      { label: "Shifts", to: "/attendance/shifts" },
-    ],
+    to: "/attendance/live",
   },
   {
     icon: <Wallet size={20} />,
     label: "Payroll",
-    basePath: "/payroll",
-    children: [
-      { label: "Process Payroll", to: "/payroll/process" },
-      { label: "History", to: "/payroll/history" },
-      { label: "Master Salary", to: "/payroll/master-salary" },
-      { label: "Master Overtime", to: "/payroll/master-overtime" },
-      { label: "Master Deduction", to: "/payroll/master-deduction" },
-      { label: "Payslips", to: "/payroll/payslips" },
-      { label: "Tax Report", to: "/payroll/tax" },
-    ],
+    to: "/payroll/process",
   },
   {
     icon: <TrendingUp size={20} />,
     label: "Finance",
-    basePath: "/finance",
-    children: [
-      { label: "Dashboard", to: "/finance" },
-      { label: "Income", to: "/finance/income" },
-      { label: "Expenses", to: "/finance/expense" },
-      { label: "Categories", to: "/finance/categories" },
-      { label: "Budgeting", to: "/finance/budget" },
-      { label: "Reports", to: "/finance/reports" },
-    ],
+    to: "/finance",
   },
   {
     icon: <MessageSquare size={20} />,
     label: "WhatsApp Bot",
-    basePath: "/bot",
-    children: [
-      { label: "Status", to: "/bot/status" },
-      { label: "Message Logs", to: "/bot/logs" },
-      { label: "Broadcast", to: "/bot/broadcast" },
-      { label: "Auto-Reply", to: "/bot/auto-reply" },
-      { label: "Templates", to: "/bot/templates" },
-      { label: "Contact Sync", to: "/bot/contacts" },
-    ],
+    to: "/bot/status",
   },
   {
     icon: <BarChart3 size={20} />,
     label: "Reports",
-    basePath: "/reports",
-    children: [
-      { label: "Report Center", to: "/reports" },
-      { label: "Attendance", to: "/reports/attendance" },
-      { label: "Payroll", to: "/reports/payroll" },
-      { label: "Finance", to: "/reports/finance" },
-      { label: "Employees", to: "/reports/employees" },
-      { label: "Builder", to: "/reports/builder" },
-      { label: "Scheduled", to: "/reports/scheduled" },
-    ],
+    to: "/reports",
   },
-  {
-    icon: <Settings size={20} />,
-    label: "Settings",
-    basePath: "/settings",
-    children: [
-      { label: "Company Profile", to: "/settings/company" },
-      { label: "Work Hours", to: "/settings/work-hours" },
-      { label: "Locations", to: "/settings/locations" },
-      { label: "Users & Roles", to: "/settings/users" },
-      { label: "Permissions", to: "/settings/roles" },
-      { label: "Notifications", to: "/settings/notifications" },
-      { label: "Integrations", to: "/settings/integrations" },
-      { label: "Backup", to: "/settings/backup" },
-      { label: "Audit Log", to: "/settings/audit-log" },
-    ],
-  },
+];
+
+const systemNavItem: NavItem = {
+  icon: <Settings size={20} />,
+  label: "Settings",
+  to: "/settings/company",
+};
+
+const attendanceSubItems: SubNavItem[] = [
+  { label: "Rekap", to: "/attendance/summary" },
+  { label: "Live Monitor", to: "/attendance/live" },
+  { label: "Manual Entry", to: "/attendance/manual" },
+  { label: "Lembur", to: "/attendance/overtime" },
+  { label: "Izin & Cuti", to: "/attendance/leave" },
+  { label: "Kalender", to: "/attendance/calendar" },
+  { label: "Shift", to: "/attendance/shifts" },
+];
+
+const employeesSubItems: SubNavItem[] = [
+  { label: "Daftar Karyawan", to: "/employees" },
+  { label: "Tambah Karyawan", to: "/employees/new" },
+  { label: "Struktur", to: "/employees/structure" },
+  { label: "Kontrak", to: "/employees/contracts" },
+  { label: "Impor Massal", to: "/employees/bulk-import" },
+];
+
+const payrollSubItems: SubNavItem[] = [
+  { label: "Proses", to: "/payroll/process" },
+  { label: "Riwayat", to: "/payroll/history" },
+  { label: "Master Gaji", to: "/payroll/master-salary" },
+  { label: "Master Lembur", to: "/payroll/master-overtime" },
+  { label: "Master Potongan", to: "/payroll/master-deduction" },
+  { label: "Slip Gaji", to: "/payroll/payslips" },
+  { label: "Laporan Pajak", to: "/payroll/tax" },
+];
+
+const financeSubItems: SubNavItem[] = [
+  { label: "Dasbor", to: "/finance" },
+  { label: "Pemasukan", to: "/finance/income" },
+  { label: "Pengeluaran", to: "/finance/expense" },
+  { label: "Kategori", to: "/finance/categories" },
+  { label: "Anggaran", to: "/finance/budget" },
+  { label: "Laporan", to: "/finance/reports" },
+];
+
+const botSubItems: SubNavItem[] = [
+  { label: "Status", to: "/bot/status" },
+  { label: "Log Pesan", to: "/bot/logs" },
+  { label: "Broadcast", to: "/bot/broadcast" },
+  { label: "Auto Reply", to: "/bot/auto-reply" },
+  { label: "Template", to: "/bot/templates" },
+  { label: "Sinkron Kontak", to: "/bot/contacts" },
+];
+
+const reportsSubItems: SubNavItem[] = [
+  { label: "Pusat Laporan", to: "/reports" },
+  { label: "Absensi", to: "/reports/attendance" },
+  { label: "Payroll", to: "/reports/payroll" },
+  { label: "Keuangan", to: "/reports/finance" },
+  { label: "Karyawan", to: "/reports/employees" },
+  { label: "Builder", to: "/reports/builder" },
+  { label: "Terjadwal", to: "/reports/scheduled" },
+];
+
+const settingsSubItems: SubNavItem[] = [
+  { label: "Profil Perusahaan", to: "/settings/company" },
+  { label: "Jam Kerja", to: "/settings/work-hours" },
+  { label: "Lokasi", to: "/settings/locations" },
+  { label: "Pengguna", to: "/settings/users" },
+  { label: "Peran", to: "/settings/roles" },
+  { label: "Notifikasi", to: "/settings/notifications" },
+  { label: "Integrasi", to: "/settings/integrations" },
+  { label: "Backup", to: "/settings/backup" },
+  { label: "Audit Log", to: "/settings/audit-log" },
 ];
 
 interface SidebarProps {
@@ -142,37 +145,51 @@ interface SidebarProps {
 export default function Sidebar({ collapsed }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    navGroups.forEach((g) => {
-      if (
-        location.pathname.startsWith(g.basePath) ||
-        (g.basePath === "/dashboard" && location.pathname === "/")
-      ) {
-        initial[g.label] = true;
-      }
-    });
-    return initial;
-  });
+  const { logout, user } = useAuth();
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  const toggleGroup = (label: string) => {
-    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  const subMenuByLabel: Partial<Record<NavItem["label"], SubNavItem[]>> = {
+    Employees: employeesSubItems,
+    Attendance: attendanceSubItems,
+    Payroll: payrollSubItems,
+    Finance: financeSubItems,
+    "WhatsApp Bot": botSubItems,
+    Reports: reportsSubItems,
   };
 
-  const isGroupActive = (group: NavGroup) => {
+  const isItemActive = (item: NavItem) => {
+    const basePath = item.to.replace(
+      /\/(new|process|status|live|company)$/,
+      "",
+    );
+
     return (
-      location.pathname.startsWith(group.basePath) ||
-      (group.basePath === "/dashboard" &&
+      location.pathname.startsWith(basePath) ||
+      (basePath === "/dashboard" &&
         (location.pathname === "/" || location.pathname === "/dashboard"))
     );
   };
 
-  const handleLogout = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const isSubItemActive = (subItem: SubNavItem) => {
+    return location.pathname === subItem.to;
+  };
+
+  const handleLogout = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    logout();
+    await logout();
     navigate("/login", { replace: true });
   };
+
+  const displayName = user?.name ?? "User";
+  const displayRole = user?.role?.name ?? "No Role";
+  const avatarInitials = displayName
+    .split(" ")
+    .filter((word) => word.length > 0)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("");
 
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -186,55 +203,140 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       </div>
 
       <nav className="sidebar-nav">
-        {navGroups.map((group) => (
-          <div className="nav-section" key={group.label}>
-            <div
-              className={`nav-group-header ${isGroupActive(group) ? "active" : ""}`}
-              onClick={() => toggleGroup(group.label)}
-            >
-              <span className="nav-icon">{group.icon}</span>
-              {!collapsed && (
-                <>
-                  {group.label}
-                  <ChevronRight
-                    size={14}
-                    className={`chevron ${openGroups[group.label] ? "open" : ""}`}
-                  />
-                </>
-              )}
-            </div>
+        <div className="nav-main">
+          {mainNavItems.map((item) => {
+            const subItems = subMenuByLabel[item.label];
+            const hasSubMenu = Boolean(subItems);
+            const isMenuActive = isItemActive(item);
+            const expandedState = expandedMenus[item.label];
+            const isMenuExpanded = hasSubMenu
+              ? (expandedState ?? isMenuActive)
+              : false;
 
-            {!collapsed && openGroups[group.label] && (
-              <div className="nav-group-children">
-                {group.children.map((child) => (
-                  <NavLink
-                    key={child.to}
-                    to={child.to}
-                    className={({ isActive }) =>
-                      `nav-item ${isActive ? "active" : ""}`
+            return (
+              <div key={item.label} className="nav-item-group">
+                <NavLink
+                  to={item.to}
+                  onClick={(event) => {
+                    if (hasSubMenu) {
+                      event.preventDefault();
+                      setExpandedMenus((prev) => ({
+                        ...prev,
+                        [item.label]: !isMenuExpanded,
+                      }));
                     }
-                    end={
-                      child.to === "/dashboard" ||
-                      child.to === "/employees" ||
-                      child.to === "/reports"
-                    }
+                  }}
+                  className={`nav-item ${isMenuActive || isMenuExpanded ? "active" : ""}`}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && hasSubMenu && (
+                    <span
+                      style={{
+                        marginLeft: "auto",
+                        display: "flex",
+                        transition: "transform var(--transition-fast)",
+                        transform: isMenuExpanded
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                      }}
+                    >
+                      <ChevronRight size={16} />
+                    </span>
+                  )}
+                </NavLink>
+
+                {!collapsed && hasSubMenu && (
+                  <div
+                    className={`nav-submenu ${isMenuExpanded ? "expanded" : ""}`}
                   >
-                    {child.label}
-                  </NavLink>
-                ))}
+                    {subItems?.map((subItem) => (
+                      <NavLink
+                        key={subItem.to}
+                        to={subItem.to}
+                        className={`nav-subitem ${isSubItemActive(subItem) ? "active" : ""}`}
+                      >
+                        {subItem.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            );
+          })}
+        </div>
+
+        <div className="nav-system">
+          {!collapsed && <p className="nav-system-label">System</p>}
+          {(() => {
+            const hasSubMenu = settingsSubItems.length > 0;
+            const isMenuActive = isItemActive(systemNavItem);
+            const expandedState = expandedMenus[systemNavItem.label];
+            const isMenuExpanded = hasSubMenu
+              ? (expandedState ?? isMenuActive)
+              : false;
+
+            return (
+              <div className="nav-item-group">
+                <NavLink
+                  to={systemNavItem.to}
+                  onClick={(event) => {
+                    if (hasSubMenu) {
+                      event.preventDefault();
+                      setExpandedMenus((prev) => ({
+                        ...prev,
+                        [systemNavItem.label]: !isMenuExpanded,
+                      }));
+                    }
+                  }}
+                  className={`nav-item ${isMenuActive || isMenuExpanded ? "active" : ""}`}
+                >
+                  <span className="nav-icon">{systemNavItem.icon}</span>
+                  {!collapsed && <span>{systemNavItem.label}</span>}
+                  {!collapsed && hasSubMenu && (
+                    <span
+                      style={{
+                        marginLeft: "auto",
+                        display: "flex",
+                        transition: "transform var(--transition-fast)",
+                        transform: isMenuExpanded
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                      }}
+                    >
+                      <ChevronRight size={16} />
+                    </span>
+                  )}
+                </NavLink>
+
+                {!collapsed && hasSubMenu && (
+                  <div
+                    className={`nav-submenu ${isMenuExpanded ? "expanded" : ""}`}
+                  >
+                    {settingsSubItems.map((subItem) => (
+                      <NavLink
+                        key={subItem.to}
+                        to={subItem.to}
+                        className={`nav-subitem ${isSubItemActive(subItem) ? "active" : ""}`}
+                      >
+                        {subItem.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
       </nav>
 
       <div className="sidebar-footer">
         <div className="user-info">
-          <div className="user-avatar">AD</div>
+          <div className="user-avatar">{avatarInitials || "U"}</div>
           {!collapsed && (
             <div className="user-details">
-              <div className="user-name">Admin User</div>
-              <div className="user-role">Super Admin</div>
+              <div className="user-name">{displayName}</div>
+              <div className="user-role">{displayRole}</div>
             </div>
           )}
           {!collapsed && (

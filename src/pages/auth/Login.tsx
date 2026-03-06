@@ -7,10 +7,25 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("admin@noorbyte.com");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    login();
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    const result = await login(email, password);
+
+    if (!result.ok) {
+      setErrorMessage(result.message ?? "Invalid email or password");
+      setIsSubmitting(false);
+      return;
+    }
+
     navigate("/dashboard", { replace: true });
   };
 
@@ -32,6 +47,10 @@ export default function Login() {
               className="input"
               type="email"
               placeholder="admin@noorbyte.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              autoComplete="email"
+              required
             />
           </div>
           <div className="input-group">
@@ -42,6 +61,10 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 style={{ width: "100%", paddingRight: "44px" }}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                required
               />
               <button
                 type="button"
@@ -61,9 +84,18 @@ export default function Login() {
               </button>
             </div>
           </div>
-          <button className="btn btn-primary btn-lg" type="submit">
+          {errorMessage && (
+            <p style={{ color: "var(--danger-500)", fontSize: "0.85rem" }}>
+              {errorMessage}
+            </p>
+          )}
+          <button
+            className="btn btn-primary btn-lg"
+            type="submit"
+            disabled={isSubmitting}
+          >
             <LogIn size={18} />
-            Sign In
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
         </form>
         <div className="auth-links">

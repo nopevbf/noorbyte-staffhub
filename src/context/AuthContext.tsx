@@ -1,63 +1,82 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AUTH_EXPIRES_AT_KEY,
-  AUTH_STORAGE_KEY,
-  clearAuthSession,
-  getAuthSession,
-  setAuthSession,
-} from "../auth/session";
+  fetchCurrentUser,
+  loginWithEmail,
+  logoutFromServer,
+} from "../auth/api";
 import { AuthContext } from "./auth-context";
 import type { AuthContextValue } from "./auth-context";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(getAuthSession);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] =
+    useState<Awaited<ReturnType<typeof fetchCurrentUser>>>(null);
+
+  const refreshSession = useCallback(async () => {
+    const currentUser = await fetchCurrentUser();
+    setUser(currentUser);
+    setIsAuthenticated(Boolean(currentUser));
+  }, []);
 
   useEffect(() => {
-    const syncAuthState = () => {
-      setIsAuthenticated(getAuthSession());
-    };
+    let disposed = false;
 
-    const syncSession = (event: StorageEvent) => {
-      if (
-        event.key === AUTH_STORAGE_KEY ||
-        event.key === AUTH_EXPIRES_AT_KEY ||
-        event.key === null
-      ) {
-        syncAuthState();
+    const bootstrap = async () => {
+      await refreshSession();
+      if (!disposed) {
+        setIsLoading(false);
       }
     };
 
-    const syncOnVisibility = () => {
+    void bootstrap();
+
+    const syncOnVisibility = async () => {
       if (document.visibilityState === "visible") {
-        syncAuthState();
+        await refreshSession();
       }
     };
 
-    const timer = window.setInterval(syncAuthState, 30_000);
+    const timer = window.setInterval(() => {
+      void refreshSession();
+    }, 30_000);
 
-    window.addEventListener("storage", syncSession);
     document.addEventListener("visibilitychange", syncOnVisibility);
 
     return () => {
+      disposed = true;
       window.clearInterval(timer);
-      window.removeEventListener("storage", syncSession);
       document.removeEventListener("visibilitychange", syncOnVisibility);
     };
-  }, []);
+  }, [refreshSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       isAuthenticated,
-      login: () => {
-        setAuthSession(true);
-        setIsAuthenticated(true);
+      isLoading,
+      user,
+      login: async (email: string, password: string) => {
+        const result = await loginWithEmail(email, password);
+
+        if (!result.ok) {
+          return {
+            ok: false,
+            message: result.message,
+          };
+        }
+
+        await refreshSession();
+
+        return { ok: true };
       },
-      logout: () => {
-        clearAuthSession();
+      logout: async () => {
+        await logoutFromServer();
+        setUser(null);
         setIsAuthenticated(false);
       },
+      refreshSession,
     }),
-    [isAuthenticated],
+    [isAuthenticated, isLoading, refreshSession, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

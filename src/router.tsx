@@ -1,18 +1,22 @@
 import { createBrowserRouter, Navigate, redirect } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import AppLayout from "./components/layout/AppLayout";
-import { getAuthSession } from "./auth/session";
+import { fetchCurrentUser } from "./auth/api";
 
-function requireAuth() {
-  if (!getAuthSession()) {
+async function requireAuth() {
+  const user = await fetchCurrentUser();
+
+  if (!user) {
     return redirect("/login");
   }
 
   return null;
 }
 
-function requireGuest() {
-  if (getAuthSession()) {
+async function requireGuest() {
+  const user = await fetchCurrentUser();
+
+  if (user) {
     return redirect("/dashboard");
   }
 
@@ -161,6 +165,12 @@ const router = createBrowserRouter([
       {
         path: "payroll/process",
         element: lazyPage(() => import("./pages/payroll/PayrollProcess")),
+      },
+      {
+        path: "payroll/process/continue",
+        element: lazyPage(
+          () => import("./pages/payroll/PayrollProcessContinue"),
+        ),
       },
       {
         path: "payroll/history",
