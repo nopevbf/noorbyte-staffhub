@@ -4,7 +4,7 @@ import { env } from "../env.js";
 import { fail } from "../utils/api-response.js";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY || "sk_test_placeholder", {
-  apiVersion: "2026-01-28.clover",
+  apiVersion: "2025-01-27.acacia",
 });
 
 /**
